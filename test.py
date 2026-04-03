@@ -79,7 +79,7 @@ class Retriever:
             faiss.write_index(self.index, self.INDEX_FILE)
             with open(self.DATA_FILE, 'wb') as f:
                 pickle.dump({"chunks": self.chunks, "embeddings": self.embeddings_cache}, f)
-            print(f"Index values saved to {self.INDEX_FILE}")
+            print(f"Index values saved to {self.INDEX_FILE}") 
 
     def load(self):
         if os.path.exists(self.INDEX_FILE) and os.path.exists(self.DATA_FILE):

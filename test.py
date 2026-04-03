@@ -165,12 +165,10 @@ class Retriever:
                 relevance = candidates[i]['final_score']
                 similarities = torch.matmul(selected_embs, target_emb)
                 redundancy = torch.max(similarities).item()
-                
                 source_penalty = 0
                 selected_sources = [candidates[idx]['source'] for idx in selected_indices]
                 if candidates[i]['source'] in selected_sources:
                     source_penalty = 0.1
-                
                 score = lambda_param * relevance - (1 - lambda_param) * redundancy - source_penalty
                 if score > best_score:
                     best_score = score
@@ -194,25 +192,40 @@ class Retriever:
         top_sentences.sort(key=lambda x: sentence_to_idx[x[0]])
         return " ".join([s[0] for s in top_sentences])
 
+    def summarize(self, results, query, token_limit=500):
+        if not results: return ""
+        all_sentences = []
+        for r in results:
+            all_sentences.extend(sent_tokenize(r['text']))
+        if not all_sentences: return ""
+        q_emb = self.embed_model.encode([query], normalize_embeddings=True, convert_to_tensor=True, show_progress_bar=False)
+        s_embs = self.embed_model.encode(all_sentences, normalize_embeddings=True, convert_to_tensor=True, show_progress_bar=False)
+        scores = torch.matmul(s_embs, q_emb.T).reshape(-1).tolist()
+        ranked = sorted(zip(all_sentences, scores), key=lambda x: x[1], reverse=True)
+        summary = []
+        current_tokens = 0
+        for sent, score in ranked:
+            tokens = len(sent.split())
+            if current_tokens + tokens > token_limit: break
+            summary.append(sent)
+            current_tokens += tokens
+        return self._clean_text(" ".join(summary))
+
     def retrieve(self, query, top_k=5, threshold=-3.5):
-        if self.index is None or self.bm25 is None: return []
-        
+        if self.index is None or self.bm25 is None: return [], ""
         sub_queries = [query]
         if ',' in query or ' and ' in query.lower():
             parts = re.split(r',| and ', query, flags=re.IGNORECASE)
             sub_queries.extend([p.strip() for p in parts if len(p.strip()) > 5])
-            
         candidate_pool = {}
         q_vecs = self.embed_model.encode(sub_queries, normalize_embeddings=True, show_progress_bar=False)
         query_emb_tensor = torch.from_numpy(q_vecs[0]).to(self.device).to(torch.float32)
-
         for i, q_text in enumerate(sub_queries):
             q_vec = q_vecs[i].reshape(1, -1).astype('float32')
             v_scores, v_indices = self.index.search(q_vec, 40)
             t_q = q_text.lower().split()
             b_scores = self.bm25.get_scores(t_q)
             b_indices = np.argsort(b_scores)[::-1][:40]
-            
             for score, idx in zip(v_scores[0], v_indices[0]):
                 if idx != -1:
                     cid = int(idx)
@@ -222,7 +235,6 @@ class Retriever:
                         candidate_pool[cid] = {**chunk_data, "v_s": float(score), "b_s": 0.0}
                     else:
                         candidate_pool[cid]["v_s"] = max(candidate_pool[cid]["v_s"], float(score))
-            
             for idx in b_indices:
                 cid = int(idx)
                 if cid in candidate_pool: 
@@ -231,29 +243,26 @@ class Retriever:
                     chunk_data = self.chunks[cid].copy()
                     chunk_data['id'] = cid
                     candidate_pool[cid] = {**chunk_data, "v_s": 0.0, "b_s": float(b_scores[idx])}
-        
         candidates = list(candidate_pool.values())
-        if not candidates: return []
-        
-        # Tăng tập rerank để đảm bảo không sót
+        if not candidates: return [], ""
         candidates.sort(key=lambda x: (0.4 * x['v_s']) + (0.6 * (x['b_s']/20.0)), reverse=True)
         rerank_set = candidates[:60]
-        
         pairs = [[query, c['text']] for c in rerank_set]
         r_scores = self.reranker.predict(pairs, show_progress_bar=False)
-        
         for i, c in enumerate(rerank_set):
             m_s = self._get_metadata_score(c['text'], query)
             norm_b = c['b_s'] / 20.0
             c["final_score"] = (0.2 * c['v_s']) + (0.15 * norm_b) + (0.55 * float(r_scores[i])) + (0.1 * m_s)
-        
         rerank_set.sort(key=lambda x: x["final_score"], reverse=True)
-        if not rerank_set or rerank_set[0]["final_score"] < threshold: return []
-        
+        if not rerank_set or rerank_set[0]["final_score"] < threshold: return [], ""
         final_set = self.mmr(rerank_set, top_k=top_k)
+        raw_results = []
         for c in final_set:
-            c['text'] = self._clean_text(self.compress_context(c['text'], c['id'], query_emb_tensor))
-        return final_set
+            clean_text = self._clean_text(self.compress_context(c['text'], c['id'], query_emb_tensor))
+            c['text'] = clean_text
+            raw_results.append(c)
+        summary_str = self.summarize(raw_results, query, token_limit=500)
+        return raw_results, summary_str
 
 def main():
     RAG = Retriever()
@@ -265,12 +274,14 @@ def main():
             if not user_q: continue
             if user_q.lower() in ['exit', 'quit']: break
             start = time.time()
-            res = RAG.retrieve(user_q)
+            res, summary = RAG.retrieve(user_q)
             end = time.time()
             if not res:
                 print("No relevant information found in the documents.")
                 continue
-            print(f"\n--- Results ({end-start:.2f}s) ---")
+            print(f"\n--- Consolidated Summary ---")
+            print(summary)
+            print(f"\n--- Top Source Chunks ({end-start:.2f}s) ---")
             for i, r in enumerate(res):
                 print(f"[{i+1}] Source: {r['source']} | Score: {r['final_score']:.3f}")
                 print(f"Content: {r['text']}\n")

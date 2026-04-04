@@ -28,7 +28,7 @@ class Agent2:
 
 class FusionAgent:
     def __init__(self):
-        self.llm = LLM(os.getenv("GROQ_API_KEY5"))
+        self.llm = LLM(os.getenv("GROQ_API_KEY4"))
 
     def fuse(self, q, e1, e2):
         p = f"Refine answer using fact and tone check.\nQuery: {q}\nFact: {e1}\nTone: {e2}\nFinal:"

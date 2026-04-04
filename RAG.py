@@ -93,7 +93,23 @@ class Retriever:
             return True
         return False
 
-    def sync(self, folder_path="./pdf"):
+    def sync(self, folder_path_or_chunks="./pdf"):
+        if isinstance(folder_path_or_chunks, list):
+            print(f"Indexing new chunks from loader...")
+            self.chunks = []
+            self.embeddings_cache = []
+            for c in folder_path_or_chunks:
+                text = c['text']
+                vecs = self.embed_model.encode([text], normalize_embeddings=True, show_progress_bar=False)
+                self.chunks.append({"text": text, "source": c['source']})
+                self.embeddings_cache.append(vecs[0].tolist())
+            if self.chunks:
+                self._build_faiss()
+                self._build_bm25()
+                self.save()
+            return
+
+        folder_path = folder_path_or_chunks
         if not os.path.exists(folder_path): 
             os.makedirs(folder_path)
             print(f"Created {folder_path} folder.")
@@ -268,6 +284,18 @@ def main():
                 print(f"[{i+1}] Source: {r['source']} | Score: {r['final_score']:.3f}\nContent: {r['text']}\n")
         except KeyboardInterrupt: break
         except Exception as e: print(f"Error: {e}")
+
+from llama_index.core.retrievers import BaseRetriever
+from llama_index.core.schema import NodeWithScore, TextNode
+
+class LlamaIndexWrapper(BaseRetriever):
+    def __init__(self, custom_retriever_instance):
+        self.retriever = custom_retriever_instance
+        super().__init__()
+
+    def _retrieve(self, query_bundle):
+        results, summary = self.retriever.retrieve(query_bundle.query_str)
+        return [NodeWithScore(node=TextNode(text=r['text'], metadata={"src": r['source']}), score=r.get('final_score', 1.0)) for r in results]
 
 if __name__ == "__main__":
     main()

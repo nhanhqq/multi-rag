@@ -1,9 +1,12 @@
-from init import DataInitializer
 from agents import RagAgent, Agent1, Agent2, FusionAgent
+from loader import load_domain_data
+from RAG import Retriever, LlamaIndexWrapper
 
 def main():
-    initializer = DataInitializer()
-    rag = initializer.init_data()
+    chunks = load_domain_data("./pdf")
+    rag = Retriever()
+    if not rag.load():
+        rag.sync(chunks)
     
     rag_agent = RagAgent()
     agent1 = Agent1()

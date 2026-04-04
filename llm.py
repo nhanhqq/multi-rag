@@ -29,5 +29,5 @@ class LLM:
         
         output = completion.choices[0].message.content
         output = output.replace('\n', ' ')
-        output = re.sub(r'[^a-zA-Z0-9\s]', '', output)
+        output = "".join(c for c in output if c.isprintable() or c.isspace())
         return re.sub(r'\s+', ' ', output).strip()

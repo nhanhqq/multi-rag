@@ -11,7 +11,7 @@ class LLM:
         self.client = None
 
     def get_key(self):
-        api_key = os.environ.get(self.key_env_name)
+        api_key = self.key_env_name
         if not api_key:
             api_key = input(f"Enter {self.key_env_name}: ").strip()
             os.environ[self.key_env_name] = api_key

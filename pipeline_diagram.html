@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Pipeline Architecture</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #ffffff;
+        color: #1a1a1a;
+        margin: 0;
+        padding: 50px;
+    }
+
+    h2 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 30px;
+        color: #111;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+    }
+
+    .pipeline-section {
+        margin-bottom: 60px;
+    }
+
+    .flow {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .box {
+        padding: 16px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 140px;
+        min-height: 60px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .box span {
+        font-size: 12px;
+        font-weight: 400;
+        margin-top: 6px;
+        opacity: 0.8;
+    }
+
+    /* Color Themes exactly matching your screenshot style */
+    .c-gray { background: #f3f4f6; border: 1px solid #e5e7eb; color: #374151; }
+    .c-blue { background: #dbeafe; border: 1px solid #bfdbfe; color: #1e3a8a; }
+    .c-green { background: #d1fae5; border: 1px solid #a7f3d0; color: #065f46; }
+    .c-purple { background: #f3e8ff; border: 1px solid #e9d5ff; color: #581c87; }
+    .c-yellow { background: #fef08a; border: 1px solid #fde047; color: #854d0e; }
+    .c-cyan { background: #cffafe; border: 1px solid #a5f3fc; color: #164e63; }
+
+    /* Branching layouts */
+    .col-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: relative;
+    }
+
+    .arrow {
+        width: 35px;
+        height: 2px;
+        background: #9ca3af;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .arrow::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: -4px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid #9ca3af;
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+    }
+
+    .arrow-split-right {
+        width: 30px;
+        height: 60px;
+        position: relative;
+    }
+    .arrow-split-right svg {
+        position: absolute;
+        left: 0;
+        top: -15px;
+        width: 100%;
+        height: 120px;
+        overflow: visible;
+    }
+
+    .arrow-merge-left {
+        width: 30px;
+        height: 60px;
+        position: relative;
+    }
+    .arrow-merge-left svg {
+        position: absolute;
+        right: 0;
+        top: -15px;
+        width: 100%;
+        height: 120px;
+        overflow: visible;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="pipeline-section">
+    <h2>1. Offline Data Indexing</h2>
+    <div class="flow">
+        <div class="box c-gray">📁 PDF/TXT<br>Documents</div>
+        <div class="arrow"></div>
+        <div class="box c-blue">File Sync &<br>Text Extraction<span>(fitz, os)</span></div>
+        <div class="arrow"></div>
+        <div class="box c-blue">Text Cleaning &<br>Chunking<span>(NLTK, regex)</span></div>
+        
+        <div class="arrow-split-right">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 50 L 15 50 L 15 10 L 30 10" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,10 23,6 23,14" fill="#9ca3af"/>
+                
+                <path d="M 0 50 L 15 50 L 15 90 L 30 90" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,90 23,86 23,94" fill="#9ca3af"/>
+            </svg>
+        </div>
+
+        <div class="col-stack">
+            <div class="flow" style="gap:0">
+                <div class="box c-green">SentenceTransformer<br>Embedding<span>(all-MiniLM-L6-v2)</span></div>
+                <div class="arrow" style="margin-left: 15px;"></div>
+                <div class="box c-green" style="margin-left: 15px;">FAISS Index<br>Building<span>(FlatIP)</span></div>
+            </div>
+            <div class="flow" style="gap:0">
+                <div class="box c-purple">Tokenization &<br>BM25Okapi Building</div>
+                <div class="arrow" style="visibility:hidden; width: 145px; margin-left: 15px;"></div> <!-- spacer -->
+            </div>
+        </div>
+
+        <div class="arrow-merge-left">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 10 L 15 10 L 15 50 L 30 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <path d="M 0 90 L 15 90 L 15 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,50 23,46 23,54" fill="#9ca3af"/>
+            </svg>
+        </div>
+
+        <div class="box c-gray">💾 Storage<span>(data.index, data.pkl)</span></div>
+    </div>
+</div>
+
+<div class="pipeline-section">
+    <h2>2. Online Hybrid Retrieval</h2>
+    <div class="flow">
+        <div class="box c-gray">👤 User Query</div>
+        <div class="arrow"></div>
+        <div class="box c-blue">Query Pre-processing<br>& Expansion<span>(re split)</span></div>
+        
+        <div class="arrow-split-right">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 50 L 15 50 L 15 15 L 30 15" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,15 23,11 23,19" fill="#9ca3af"/>
+                
+                <path d="M 0 50 L 15 50 L 15 85 L 30 85" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,85 23,81 23,89" fill="#9ca3af"/>
+            </svg>
+        </div>
+
+        <div class="col-stack">
+            <div class="box c-green">Dense Retrieval:<br>FAISS Search<span>(top 60 results)</span></div>
+            <div class="box c-purple">Sparse Retrieval:<br>BM25 Search<span>(top 60 results)</span></div>
+        </div>
+
+        <div class="arrow-merge-left">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 15 L 15 15 L 15 50 L 30 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <path d="M 0 85 L 15 85 L 15 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,50 23,46 23,54" fill="#9ca3af"/>
+            </svg>
+        </div>
+
+        <div class="box c-blue">Hybrid Score<br>Merging<span>(top 100 results)</span></div>
+        <div class="arrow"></div>
+        <div class="box c-cyan">Cross-Encoder<br>Re-ranking<span>(ms-marco)</span></div>
+        <div class="arrow"></div>
+        <div class="box c-yellow">MMR<br>Diversification<span>(Top-K filtering)</span></div>
+        
+        <div class="arrow-split-right">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 50 L 15 50 L 15 15 L 30 15" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,15 23,11 23,19" fill="#9ca3af"/>
+                
+                <path d="M 0 50 L 15 50 L 15 85 L 30 85" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,85 23,81 23,89" fill="#9ca3af"/>
+            </svg>
+        </div>
+        
+        <div class="col-stack">
+            <div class="box c-green">Context<br>Compression<span>(Sentence Matching)</span></div>
+            <div class="box c-purple">Query-based<br>Summarization</div>
+        </div>
+        
+        <div class="arrow-merge-left">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 15 L 15 15 L 15 50 L 30 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <path d="M 0 85 L 15 85 L 15 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,50 23,46 23,54" fill="#9ca3af"/>
+            </svg>
+        </div>
+        
+        <div class="box c-gray">📑 Extracted Chunks<br>& Summary</div>
+
+    </div>
+</div>
+
+<div class="pipeline-section">
+    <h2>3. Multi-Agent Synthesis (LLM)</h2>
+    <div class="flow">
+        
+        <div class="box c-cyan">RagAgent<br>(Draft Generator)<span>Answers from context</span></div>
+        
+        <div class="arrow-split-right">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 50 L 15 50 L 15 15 L 30 15" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,15 23,11 23,19" fill="#9ca3af"/>
+                
+                <path d="M 0 50 L 15 50 L 15 85 L 30 85" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,85 23,81 23,89" fill="#9ca3af"/>
+            </svg>
+        </div>
+
+        <div class="col-stack">
+            <div class="box c-yellow">Agent 1<br>(Grounding Auditor)<span>Check factual errors</span></div>
+            <div class="box c-purple">Agent 2<br>(Logic & Tone Judge)<span>Check tone issues</span></div>
+        </div>
+
+        <div class="arrow-merge-left">
+            <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+                <path d="M 0 15 L 15 15 L 15 50 L 30 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <path d="M 0 85 L 15 85 L 15 50" fill="none" stroke="#9ca3af" stroke-width="2"/>
+                <polygon points="30,50 23,46 23,54" fill="#9ca3af"/>
+            </svg>
+        </div>
+
+        <div class="box c-green">FusionAgent<br>(Executive Synthesizer)<span>Blends everything</span></div>
+        <div class="arrow"></div>
+        <div class="box c-gray">✅ Final, Refined<br>Response</div>
+    </div>
+</div>
+
+</body>
+</html>

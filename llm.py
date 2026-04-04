@@ -4,7 +4,7 @@ from groq import Groq
 from dotenv import load_dotenv
 
 class LLM:
-    def __init__(self, key_env_name, model="groq/compound-mini"):
+    def __init__(self, key_env_name, model="meta-llama/llama-4-scout-17b-16e-instruct"):
         load_dotenv()
         self.model = model
         self.key_env_name = key_env_name

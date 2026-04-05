@@ -117,14 +117,15 @@ async def chat_endpoint(req: ChatRequest):
     
     save_history(user_q, final_ans)
     
-    confidence = 0
-    for i in range(len(final_ans)-1, 0, -1):
-        if final_ans[i].isdigit() and final_ans[i-1].isdigit():
-            confidence = int(final_ans[i-1] + final_ans[i])
-            break
-    if confidence > 100:
-        confidence = 100
-    print(confidence)
+    match = re.search(r"Confidence Score:\s*(\d+)", final_ans, re.IGNORECASE)
+    if match:
+        confidence = int(match.group(1))
+    else:
+        numbers = re.findall(r"\d+", final_ans)
+        confidence = int(numbers[-1]) if numbers else 0
+
+    if confidence > 100: confidence = 100
+    print(f"Confidence extracted: {confidence}")
     return {
         "draft": draft_ans,
         "eval1": eval1,

@@ -514,58 +514,72 @@
       resetSteppers();
 
       try {
-        document.getElementById('step-rag').classList.add('active');
-        document.getElementById('statusText').innerText = 'RagAgent Drafting...';
-
         const response = await fetch('http://localhost:8000/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: text })
         });
-        const data = await response.json();
 
-        document.getElementById('step-rag').classList.replace('active', 'completed');
-        document.getElementById('log-rag').innerText = data.draft || "No draft content.";
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-        document.getElementById('statusText').innerText = 'Agent 1 Auditing...';
-        document.getElementById('step-a1').classList.add('active');
-        await new Promise(r => setTimeout(r, 100));
-        document.getElementById('step-a1').classList.replace('active', 'completed');
-        document.getElementById('log-a1').innerText = data.eval1 || "Skipped.";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        document.getElementById('statusText').innerText = 'Agent 2 Judging...';
-        document.getElementById('step-a2').classList.add('active');
-        await new Promise(r => setTimeout(r, 100));
-        document.getElementById('step-a2').classList.replace('active', 'completed');
-        document.getElementById('log-a2').innerText = data.eval2 || "Skipped.";
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
 
-        document.getElementById('statusText').innerText = 'Fusion Synthesis...';
-        document.getElementById('step-fusion').classList.add('active');
-        await new Promise(r => setTimeout(r, 150));
-        document.getElementById('step-fusion').classList.replace('active', 'completed');
-        document.getElementById('log-fusion').innerText = "Final synthesis complete.";
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const event = JSON.parse(line);
 
-        const scoreEl = document.getElementById('confidenceScore');
-        scoreEl.innerText = (data.confidence || 0) + '%';
-        document.getElementById('confidenceBox').style.transform = 'scale(1.05)';
-        setTimeout(() => document.getElementById('confidenceBox').style.transform = 'scale(1)', 200);
+            if (event.type === 'sources') {
+              const sourceList = document.getElementById('sourceList');
+              if (event.data && event.data.length > 0) {
+                event.data.forEach(src => {
+                  const card = document.createElement('div');
+                  card.className = 'source-card';
+                  card.innerHTML = `<strong>${src.source}</strong><div style="color:var(--text-muted); font-size:0.8rem">${src.text.substring(0, 100)}...</div>`;
+                  sourceList.appendChild(card);
+                });
+              }
+              document.getElementById('step-rag').classList.add('active');
+            } else if (event.type === 'draft') {
+              document.getElementById('step-rag').classList.replace('active', 'completed');
+              document.getElementById('log-rag').innerText = event.data;
+              document.getElementById('step-a1').classList.add('active');
+              document.getElementById('statusText').innerText = 'Agent 1 Auditing...';
+            } else if (event.type === 'eval1') {
+              document.getElementById('step-a1').classList.replace('active', 'completed');
+              document.getElementById('log-a1').innerText = event.data;
+              document.getElementById('step-a2').classList.add('active');
+              document.getElementById('statusText').innerText = 'Agent 2 Judging...';
+            } else if (event.type === 'eval2') {
+              document.getElementById('step-a2').classList.replace('active', 'completed');
+              document.getElementById('log-a2').innerText = event.data;
+              document.getElementById('step-fusion').classList.add('active');
+              document.getElementById('statusText').innerText = 'Fusion Synthesis...';
+            } else if (event.type === 'final') {
+              document.getElementById('step-fusion').classList.replace('active', 'completed');
+              document.getElementById('log-fusion').innerText = "Final synthesis complete.";
 
-        const sourceList = document.getElementById('sourceList');
-        if (data.sources && data.sources.length > 0) {
-          data.sources.forEach(src => {
-            const card = document.createElement('div');
-            card.className = 'source-card';
-            card.innerHTML = `<strong>${src.source}</strong><div style="color:var(--text-muted); font-size:0.8rem">${src.text.substring(0, 100)}...</div>`;
-            sourceList.appendChild(card);
-          });
+              const scoreEl = document.getElementById('confidenceScore');
+              scoreEl.innerText = (event.confidence || 0) + '%';
+              document.getElementById('confidenceBox').style.transform = 'scale(1.05)';
+              setTimeout(() => document.getElementById('confidenceBox').style.transform = 'scale(1)', 200);
+
+              if (chatArea.contains(typingDiv)) chatArea.removeChild(typingDiv);
+              const botMsg = document.createElement('div');
+              botMsg.className = 'message bot';
+              botMsg.innerHTML = event.data.replace(/\(([^)]+)\)/g, '<span style="color: #ff4d4d; font-weight: 600;">($1)</span>');
+              chatArea.appendChild(botMsg);
+            }
+            chatArea.scrollTop = chatArea.scrollHeight;
+          }
         }
-
-        if (chatArea.contains(typingDiv)) chatArea.removeChild(typingDiv);
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot';
-        botMsg.innerHTML = data.final.replace(/\(([^)]+)\)/g, '<span style="color: #ff4d4d; font-weight: 600;">($1)</span>');
-        chatArea.appendChild(botMsg);
-
       } catch (err) {
         console.error(err);
         if (chatArea.contains(typingDiv)) chatArea.removeChild(typingDiv);

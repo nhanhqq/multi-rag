@@ -82,58 +82,54 @@ def save_history(user_q, bot_ans):
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=4)
 
+from fastapi.responses import StreamingResponse
+
 @app.post("/api/chat")
 async def chat_endpoint(req: ChatRequest):
-    user_q = req.query
-    history_context = get_recent_history_context()
-    augmented_q = f"Previous chat context:\n{history_context}\nCurrent Query: {user_q}" if history_context else user_q
-    
-    res, summary = rag.retrieve(user_q)
-    
-    if not res:
-        return {
-            "draft": "",
-            "eval1": "",
-            "eval2": "",
-            "final": "No context found.",
-            "confidence": 0,
-            "sources": []
-        }
+    async def generate_events():
+        user_q = req.query
+        history_context = get_recent_history_context()
+        augmented_q = f"Previous chat context:\n{history_context}\nCurrent Query: {user_q}" if history_context else user_q
         
-    chunks_text = " ".join([f"{r['source']} {r['text']}" for r in res])
-    
-    unique_sources = {}
-    for r in res:
-        src = r['source']
-        if src not in unique_sources:
-            unique_sources[src] = r['text']
+        res, summary = rag.retrieve(user_q)
+        
+        if not res:
+            yield json.dumps({"type": "final", "data": "No context found.", "confidence": 0, "sources": []}) + "\n"
+            return
             
-    sources = [{"source": k, "text": v} for k, v in unique_sources.items()]
-    
-    draft_ans = rag_agent.draft(augmented_q, summary, chunks_text)
-    eval1 = agent1.evaluate(augmented_q, chunks_text, draft_ans)
-    eval2 = agent2.evaluate(augmented_q, summary, draft_ans)
-    final_ans = fusion_agent.fuse(augmented_q, draft_ans, eval1, eval2, summary, chunks_text)
-    
-    save_history(user_q, final_ans)
-    
-    match = re.search(r"Confidence Score:\s*(\d+)", final_ans, re.IGNORECASE)
-    if match:
-        confidence = int(match.group(1))
-    else:
-        numbers = re.findall(r"\d+", final_ans)
-        confidence = int(numbers[-1]) if numbers else 0
+        unique_sources = {}
+        for r in res:
+            src = r['source']
+            if src not in unique_sources:
+                unique_sources[src] = r['text']
+        sources = [{"source": k, "text": v} for k, v in unique_sources.items()]
+        yield json.dumps({"type": "sources", "data": sources}) + "\n"
+        
+        chunks_text = " ".join([f"{r['source']} {r['text']}" for r in res])
+        
+        draft_ans = rag_agent.draft(augmented_q, summary, chunks_text)
+        yield json.dumps({"type": "draft", "data": draft_ans}) + "\n"
+        
+        eval1 = agent1.evaluate(augmented_q, chunks_text, draft_ans)
+        yield json.dumps({"type": "eval1", "data": eval1}) + "\n"
+        
+        eval2 = agent2.evaluate(augmented_q, summary, draft_ans)
+        yield json.dumps({"type": "eval2", "data": eval2}) + "\n"
+        
+        final_ans = fusion_agent.fuse(augmented_q, draft_ans, eval1, eval2, summary, chunks_text)
+        
+        save_history(user_q, final_ans)
+        
+        match = re.search(r"Confidence Score:\s*(\d+)", final_ans, re.IGNORECASE)
+        confidence = int(match.group(1)) if match else 0
+        if not confidence:
+            numbers = re.findall(r"\d+", final_ans)
+            confidence = int(numbers[-1]) if numbers else 0
+        if confidence > 100: confidence = 100
+        
+        yield json.dumps({"type": "final", "data": final_ans, "confidence": confidence}) + "\n"
 
-    if confidence > 100: confidence = 100
-    print(f"Confidence extracted: {confidence}")
-    return {
-        "draft": draft_ans,
-        "eval1": eval1,
-        "eval2": eval2,
-        "final": final_ans,
-        "confidence": confidence,
-        "sources": sources
-    }
+    return StreamingResponse(generate_events(), media_type="application/x-ndjson")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

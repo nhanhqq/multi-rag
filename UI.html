@@ -429,7 +429,7 @@
     <div class="chat-section">
       <div class="top-bar">
         <div class="chat-title"><i class="fas fa-layer-group"></i> Multi-Agent Hybrid RAG System</div>
-        <div class="status-badge"><span>●</span> Core Online</div>
+        <div class="status-badge" id="statusBadge"><span id="statusDot">●</span> <span id="statusTextNode">Core Online</span></div>
       </div>
       <div class="chat-area" id="chatArea">
         <div class="message bot">
@@ -595,6 +595,26 @@
         input.focus();
       }
     }
+
+    async function checkHealth() {
+      const dot = document.getElementById('statusDot');
+      const textNode = document.getElementById('statusTextNode');
+      try {
+        const res = await fetch('http://localhost:8000/api/health', { method: 'GET' });
+        if (res.ok) {
+          dot.style.color = 'var(--accent)';
+          textNode.innerText = 'Core Online';
+        } else {
+          throw new Error();
+        }
+      } catch (err) {
+        dot.style.color = '#ef4444';
+        textNode.innerText = 'Core Offline';
+      }
+    }
+
+    setInterval(checkHealth, 3000);
+    checkHealth();
 
     sendBtn.addEventListener('click', handleQuery);
     input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleQuery(); });

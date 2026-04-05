@@ -25,6 +25,24 @@
       box-sizing: border-box;
     }
 
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+      transition: background 0.3s;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--purple);
+    }
+
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
@@ -474,7 +492,6 @@
       resetSteppers();
 
       try {
-        // Step 1: RagAgent Drafting
         document.getElementById('step-rag').classList.add('active');
         document.getElementById('statusText').innerText = 'RagAgent Drafting...';
 
@@ -488,34 +505,29 @@
         document.getElementById('step-rag').classList.replace('active', 'completed');
         document.getElementById('log-rag').innerText = data.draft || "No draft content.";
 
-        // Step 2: Agent 1 (Min Timeout)
         document.getElementById('statusText').innerText = 'Agent 1 Auditing...';
         document.getElementById('step-a1').classList.add('active');
         await new Promise(r => setTimeout(r, 100));
         document.getElementById('step-a1').classList.replace('active', 'completed');
         document.getElementById('log-a1').innerText = data.eval1 || "Skipped.";
 
-        // Step 3: Agent 2 (Min Timeout)
         document.getElementById('statusText').innerText = 'Agent 2 Judging...';
         document.getElementById('step-a2').classList.add('active');
         await new Promise(r => setTimeout(r, 100));
         document.getElementById('step-a2').classList.replace('active', 'completed');
         document.getElementById('log-a2').innerText = data.eval2 || "Skipped.";
 
-        // Step 4: Fusion Synthesis (Min Timeout)
         document.getElementById('statusText').innerText = 'Fusion Synthesis...';
         document.getElementById('step-fusion').classList.add('active');
         await new Promise(r => setTimeout(r, 150));
         document.getElementById('step-fusion').classList.replace('active', 'completed');
         document.getElementById('log-fusion').innerText = "Final synthesis complete.";
 
-        // Step 5: Confidence Score Update
         const scoreEl = document.getElementById('confidenceScore');
         scoreEl.innerText = (data.confidence || 0) + '%';
         document.getElementById('confidenceBox').style.transform = 'scale(1.05)';
         setTimeout(() => document.getElementById('confidenceBox').style.transform = 'scale(1)', 200);
 
-        // Step 6: Sources Display
         const sourceList = document.getElementById('sourceList');
         if (data.sources && data.sources.length > 0) {
           data.sources.forEach(src => {
@@ -526,7 +538,6 @@
           });
         }
 
-        // Final: Show Bot Message
         if (chatArea.contains(typingDiv)) chatArea.removeChild(typingDiv);
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';

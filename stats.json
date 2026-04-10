@@ -1,12 +1,13 @@
 {
-    "total_queries": 4,
+    "total_queries": 5,
     "unique_queries": [
         "okay so what is quantum auto encoder?",
         "what is quantum svm? how does it work?",
         "what is quantum svm?",
-        "tell me more about quantum svm?"
+        "tell me more about quantum svm?",
+        "okay hoàng đức hiệu là ai? tiềnbao nhiêu?"
     ],
-    "total_tokens": 1693,
+    "total_tokens": 2050,
     "cache_hits": 3,
     "queries": [
         {
@@ -145,6 +146,37 @@
                     84,
                     39,
                     91
+                ]
+            }
+        },
+        {
+            "time": "2026-04-10T21:52:39.505612",
+            "query": "okay hoàng đức hiệu là ai? tiềnbao nhiêu?",
+            "tokens": 357,
+            "cache": false,
+            "trace": {
+                "retrieve_time": 11.384680271148682,
+                "chunks_found": 5,
+                "sources": [
+                    "FARPC Bảng kê Hoàng Đức Hiệu.xlsx",
+                    "FARPC Bảng kê Hoàng Đức Hiệu.xlsx",
+                    "FARPC Bảng kê Hoàng Đức Hiệu.xlsx",
+                    "FARPC Bảng kê Hoàng Đức Hiệu.xlsx",
+                    "FARPC Bảng kê Hoàng Đức Hiệu.xlsx"
+                ],
+                "scores": [
+                    1.3865975625920801,
+                    -0.5529411935774137,
+                    -0.6900807191217964,
+                    -0.9311906763067745,
+                    -1.7828657670500205
+                ],
+                "indices": [
+                    4,
+                    3,
+                    7,
+                    5,
+                    2
                 ]
             }
         }

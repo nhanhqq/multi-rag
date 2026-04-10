@@ -8,6 +8,8 @@ import nltk
 import torch
 import re
 import time
+import pandas as pd
+import docx2txt
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer, CrossEncoder, util
 from nltk.tokenize import sent_tokenize
@@ -114,12 +116,16 @@ class Retriever:
             os.makedirs(folder_path)
             print(f"Created {folder_path} folder.")
             return
-        current_files = {f for f in os.listdir(folder_path) if f.lower().endswith(('.pdf', '.txt'))}
+
+        IGNORED_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.mp4', '.zip', '.rar', '.exe', '.pkl', '.index', '.db', '.sqlite', '.pyc', '.DS_Store')
+        current_files = {f for f in os.listdir(folder_path) if not f.lower().endswith(IGNORED_EXTENSIONS)}
         indexed_files = {c['source'] for c in self.chunks}
         to_delete = indexed_files - current_files
         to_add = current_files - indexed_files
+
         if not to_delete and not to_add and self.index:
             return
+
         needs_rebuild = False
         if to_delete:
             print(f"Removing old files: {to_delete}")
@@ -127,26 +133,44 @@ class Retriever:
             self.chunks = [self.chunks[i] for i in indices]
             self.embeddings_cache = [self.embeddings_cache[i] for i in indices]
             needs_rebuild = True
+
         if to_add:
             print(f"Indexing new files: {to_add}")
             for file in to_add:
                 path = os.path.join(folder_path, file)
                 text = ""
                 try:
-                    if file.endswith(".pdf"):
+                    file_lower = file.lower()
+                    if file_lower.endswith(".pdf"):
                         with fitz.open(path) as doc:
-                            for page in doc: text += page.get_text("text") + " "
+                            for page in doc: 
+                                text += page.get_text("text") + " "
+                    elif file_lower.endswith((".docx", ".doc")):
+                        text = docx2txt.process(path)
+                    elif file_lower.endswith((".xlsx", ".xls")):
+                        df = pd.read_excel(path)
+                        text = df.to_string(index=False)
+                    elif file_lower.endswith(".csv"):
+                        df = pd.read_csv(path)
+                        text = df.to_string(index=False)
                     else:
-                        with open(path, 'r', encoding='utf-8') as f: text = f.read()
-                    file_chunks = self.chunk_text(text)
-                    if file_chunks:
-                        vecs = self.embed_model.encode(file_chunks, normalize_embeddings=True, show_progress_bar=False)
-                        for chunk, vec in zip(file_chunks, vecs):
-                            self.chunks.append({"text": chunk, "source": file})
-                            self.embeddings_cache.append(vec.tolist())
-                        needs_rebuild = True
+                        try:
+                            with open(path, 'r', encoding='utf-8') as f: 
+                                text = f.read()
+                        except UnicodeDecodeError:
+                            continue
+
+                    if text.strip():
+                        file_chunks = self.chunk_text(text)
+                        if file_chunks:
+                            vecs = self.embed_model.encode(file_chunks, normalize_embeddings=True, show_progress_bar=False)
+                            for chunk, vec in zip(file_chunks, vecs):
+                                self.chunks.append({"text": chunk, "source": file})
+                                self.embeddings_cache.append(vec.tolist())
+                            needs_rebuild = True
                 except Exception as e:
                     print(f"Error processing {file}: {e}")
+
         if needs_rebuild and self.embeddings_cache:
             self._build_faiss()
             self._build_bm25()

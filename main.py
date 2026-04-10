@@ -45,6 +45,7 @@ def init_stats():
             json.dump({"total_queries": 0, "unique_queries": [], "total_tokens": 0, "cache_hits": 0, "queries": []}, f)
 
 IS_READY = False
+IGNORED_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.mp4', '.zip', '.rar', '.exe', '.pkl', '.index', '.db', '.sqlite', '.pyc', '.DS_Store')
 
 def sync_knowledge_loop():
     global IS_READY
@@ -58,18 +59,15 @@ def sync_knowledge_loop():
     rag.sync(initial_chunks)
     IS_READY = True
     
-    current_files = [f for f in os.listdir(pdf_dir) if f.endswith(".pdf")]
-    last_state = {f: os.path.getmtime(os.path.join(pdf_dir, f)) for f in current_files}
-    
     while True:
         try:
-            current_files = [f for f in os.listdir(pdf_dir) if f.endswith(".pdf")]
+            current_files = [f for f in os.listdir(pdf_dir) if not f.lower().endswith(IGNORED_EXTENSIONS)]
             current_state = {f: os.path.getmtime(os.path.join(pdf_dir, f)) for f in current_files}
             if current_state != last_state:
                 chunks = load_domain_data(pdf_dir)
                 rag.sync(chunks)
                 last_state = current_state
-        except:
+        except Exception:
             pass
         time.sleep(5)
 
@@ -263,7 +261,7 @@ def get_files():
     pdf_dir = "./pdf"
     if not os.path.exists(pdf_dir):
         return []
-    return [f for f in os.listdir(pdf_dir) if f.endswith(".pdf")]
+    return [f for f in os.listdir(pdf_dir) if not f.lower().endswith(IGNORED_EXTENSIONS)]
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

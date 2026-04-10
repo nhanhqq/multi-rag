@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Multi-Agent Hybrid RAG System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --bg: transparent;
+            --panel-bg: rgba(22, 23, 31, 0.75);
+            --sidebar: #101116;
+            --accent: #00f5ff;
+            --purple: #a855f7;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(255, 255, 255, 0.03);
+            --red: #ff4d4d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--purple);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(-45deg, #13151c, #1e1e3f, #2d1b3a, #1a3a5a, #0f2a2a);
+            background-size: 400% 400%;
+            animation: pastelGradient 12s ease infinite;
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        @keyframes pastelGradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            height: 100vh;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar {
+            width: 260px;
+            background: rgba(16, 17, 22, 0.9);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-small-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .btn-small {
+            padding: 10px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-small:hover {
+            color: var(--text);
+            border-color: var(--purple);
+        }
+
+        .setting-item {
+            margin-bottom: 24px;
+        }
+
+        .setting-item label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .setting-item input[type="range"] {
+            width: 100%;
+            accent-color: var(--red);
+        }
+
+        .content-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-nav {
+            height: 60px;
+            border-bottom: 1px solid var(--border);
+            background: var(--panel-bg);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            gap: 30px;
+            backdrop-filter: blur(20px);
+            z-index: 50;
+        }
+
+        .tab-item {
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item:hover,
+        .tab-item.active {
+            color: var(--text);
+        }
+
+        .tab-item.active {
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .chat-section {
+            flex: 7;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            background: rgba(15, 16, 21, 0.4);
+            position: relative;
+        }
+
+        .top-bar {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            z-index: 10;
+        }
+
+        .chat-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-badge {
+            background: var(--glass);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .status-badge span {
+            color: var(--accent);
+        }
+
+        .status-badge span.online {
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .chat-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            animation: slideIn 0.3s ease-out;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.8), rgba(2, 132, 199, 0.8));
+            color: #000;
+            border-bottom-right-radius: 4px;
+            font-weight: 500;
+            box-shadow: 0 10px 30px -10px rgba(0, 245, 255, 0.3);
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(22, 23, 31, 0.6);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        .input-bar {
+            padding: 24px 30px;
+            background: rgba(15, 16, 21, 0.4);
+            border-top: 1px solid var(--border);
+        }
+
+        .input-container {
+            background: rgba(22, 23, 31, 0.8);
+            border-radius: 20px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-container:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 245, 255, 0.1);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            color: #000;
+            border: none;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .insight-panel {
+            flex: 4;
+            background: rgba(22, 23, 31, 0.5);
+            backdrop-filter: blur(30px);
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .confidence-box {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 24px;
+            background: linear-gradient(180deg, var(--glass), transparent);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .conf-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .conf-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-top: 8px;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+        }
+
+        .agent-stepper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .step {
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .step-log {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            display: none;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .step.active {
+            border-color: var(--accent);
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        .step.active .step-header {
+            color: var(--accent);
+        }
+
+        .step.active .step-log {
+            display: block;
+        }
+
+        .sources-section {
+            margin-top: 30px;
+        }
+
+        .source-card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .source-card strong {
+            display: block;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .dashboard-pane {
+            flex-direction: column;
+            padding: 40px;
+            overflow-y: auto;
+            width: 100%;
+            position: relative;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .kb-controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .kb-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+        }
+
+        .kb-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .graph-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            height: 500px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #graph-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .trace-panel {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 400px;
+            height: calc(100% - 80px);
+            background: #16171f;
+            border-left: 1px solid var(--border);
+            padding: 30px;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            overflow-y: auto;
+            z-index: 200;
+            border-radius: 16px;
+        }
+
+        .trace-panel.active {
+            display: block;
+        }
+
+        .trace-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .trace-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .trace-val {
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(22, 23, 31, 0.8);
+            border-radius: 16px;
+            width: max-content;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header"><i class="fas fa-database"></i> Data Management</div>
+            <div class="btn-small-group">
+                <button class="btn-small" onclick="clearData('chat')"><i class="fas fa-trash-alt"></i> Clear
+                    Chat</button>
+                <button class="btn-small" onclick="clearData('stats')"><i class="fas fa-chart-line"></i> Clear
+                    Stats</button>
+            </div>
+            <div class="sidebar-header"><i class="fas fa-sliders-h"></i> Settings</div>
+            <div class="setting-item">
+                <label>Top K Results: <span id="topKValue">5</span></label>
+                <input type="range" id="topKSlider" min="1" max="10" value="5">
+            </div>
+        </aside>
+
+        <main class="content-main">
+            <nav class="top-nav">
+                <div class="tab-item active" data-tab="chat"><i class="fas fa-comment"></i> Chat</div>
+                <div class="tab-item" data-tab="stats"><i class="fas fa-chart-bar"></i> Statistics</div>
+                <div class="tab-item" data-tab="kb"><i class="fas fa-brain"></i> Knowledge Base</div>
+                <div class="tab-item" data-tab="analytics"><i class="fas fa-history"></i> Analytics</div>
+            </nav>
+
+            <div id="chat-view" class="tab-content active">
+                <div class="main-container">
+                    <div class="chat-section">
+                        <div class="top-bar">
+                            <div class="chat-title"><i class="fas fa-layer-group"></i> Multi-Agent Hybrid RAG System
+                            </div>
+                            <div class="status-badge" id="statusBadge"><span id="statusDot">●</span> <span
+                                    id="statusTextNode">Core Offline</span></div>
+                        </div>
+                        <div class="chat-area" id="chatArea"></div>
+                        <div class="input-bar">
+                            <div class="input-container">
+                                <input type="text" id="userInput" placeholder="Waiting for core..." disabled />
+                                <button class="send-btn" id="sendBtn" disabled><i
+                                        class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="insight-panel">
+                        <div class="panel-header"><i class="fas fa-microchip"></i> REASONING ENGINE</div>
+                        <div class="confidence-box" id="confidenceBox">
+                            <div class="conf-label">Confidence Score</div>
+                            <div class="conf-value" id="confidenceScore">--%</div>
+                        </div>
+                        <div class="agent-stepper">
+                            <div class="step" id="step-rag">
+                                <div class="step-header"><i class="fas fa-database"></i> RagAgent (Drafting)</div>
+                                <div class="step-log" id="log-rag">Waiting...</div>
+                            </div>
+                            <div class="step" id="step-a1">
+                                <div class="step-header"><i class="fas fa-search"></i> Auditor Agent</div>
+                                <div class="step-log" id="log-a1">Waiting...</div>
+                            </div>
+                            <div class="step" id="step-a2">
+                                <div class="step-header"><i class="fas fa-comment-alt"></i> Judge Agent</div>
+                                <div class="step-log" id="log-a2">Waiting...</div>
+                            </div>
+                            <div class="step" id="step-fusion">
+                                <div class="step-header"><i class="fas fa-bolt"></i> Fusion Agent</div>
+                                <div class="step-log" id="log-fusion">Waiting...</div>
+                            </div>
+                        </div>
+                        <div class="sources-section">
+                            <div class="panel-header" style="font-size:0.85rem"><i class="fas fa-link"></i> Retrieved
+                                Context</div>
+                            <div id="sourceList"></div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <div id="stats-view" class="tab-content dashboard-pane">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div>Total Queries</div>
+                        <div class="conf-value" id="stat-total" style="font-size:2rem">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>Unique Queries</div>
+                        <div class="conf-value" id="stat-unique" style="font-size:2rem">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>Cache Hit Rate</div>
+                        <div class="conf-value" id="stat-cache" style="font-size:2rem">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>Total Cost</div>
+                        <div class="conf-value" id="stat-cost" style="font-size:2rem">$0.00</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:24px">
+                    <div class="card" style="flex:1">
+                        <h3>Query Frequency</h3><canvas id="freqChart"></canvas>
+                    </div>
+                    <div class="card" style="flex:1">
+                        <h3>Average Tokens</h3><canvas id="tokenChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="kb-view" class="tab-content dashboard-pane">
+                <div class="kb-controls">
+                    <div class="kb-tab active" onclick="switchKBTab('files')"><i class="fas fa-file"></i> Files</div>
+                    <div class="kb-tab" onclick="switchKBTab('graph')"><i class="fas fa-project-diagram"></i> Knowledge
+                        Graph</div>
+                </div>
+                <div id="kb-files-view" class="kb-grid-layout">
+                    <div id="kb-files"
+                        style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:20px;">
+                    </div>
+                </div>
+                <div id="kb-graph-view" style="display:none; flex-direction:column; flex:1">
+                    <div class="graph-container"><svg id="graph-canvas"></svg></div>
+                </div>
+            </div>
+
+            <div id="analytics-view" class="tab-content dashboard-pane">
+                <div class="card">
+                    <h3>Recent Queries (Click to Trace)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Query</th>
+                                <th>Tokens</th>
+                                <th>Cache</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timeline-table"></tbody>
+                    </table>
+                </div>
+                <div class="trace-panel" id="tracePanel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                        <h3>Detailed Query Trace</h3>
+                        <i class="fas fa-times" style="cursor:pointer" onclick="closeTrace()"></i>
+                    </div>
+                    <div id="traceContent"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:8000/api";
+        const input = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatArea = document.getElementById('chatArea');
+        let freqChart, tokenChart, graphSvg;
+
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab-item, .tab-content').forEach(el => el.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-view`).classList.add('active');
+                if (tab.dataset.tab === 'stats') updateStatsView();
+                if (tab.dataset.tab === 'kb') updateKB();
+                if (tab.dataset.tab === 'analytics') updateTimeline();
+            });
+        });
+
+        function switchKBTab(t) {
+            document.querySelectorAll('.kb-tab').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.kb-tab:nth-child(${t === 'files' ? 1 : 2})`).classList.add('active');
+            document.getElementById('kb-files-view').style.display = t === 'files' ? 'block' : 'none';
+            document.getElementById('kb-graph-view').style.display = t === 'graph' ? 'flex' : 'none';
+            if (t === 'graph') fetchGraph();
+        }
+
+        async function fetchGraph() {
+            const res = await fetch(`${API_BASE}/graph`);
+            const data = await res.json();
+            drawGraph(data);
+        }
+
+        function drawGraph(data) {
+            const width = document.querySelector('.graph-container').clientWidth;
+            const height = 500;
+            const svg = d3.select("#graph-canvas").attr("viewBox", [0, 0, width, height]);
+            svg.selectAll("*").remove();
+            const simulation = d3.forceSimulation(data.nodes).force("link", d3.forceLink(data.links).id(d => d.id)).force("charge", d3.forceManyBody().strength(-200)).force("center", d3.forceCenter(width / 2, height / 2));
+            const link = svg.append("g").attr("stroke", "var(--border)").attr("stroke-opacity", 0.6).selectAll("line").data(data.links).join("line").attr("stroke-width", d => Math.sqrt(d.weight * 5));
+            const node = svg.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll("circle").data(data.nodes).join("circle").attr("r", 8).attr("fill", "var(--accent)").call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+            node.append("title").text(d => `${d.label}\n${d.text}`);
+            simulation.on("tick", () => {
+                link.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+                node.attr("cx", d => d.x).attr("cy", d => d.y);
+            });
+            function dragstarted(event) { if (!event.active) simulation.alphaTarget(0.3).restart(); event.subject.fx = event.subject.x; event.subject.fy = event.subject.y; }
+            function dragged(event) { event.subject.fx = event.x; event.subject.fy = event.y; }
+            function dragended(event) { if (!event.active) simulation.alphaTarget(0); event.subject.fx = null; event.subject.fy = null; }
+        }
+
+        async function checkHealth() {
+            const text = document.getElementById('statusTextNode');
+            const dot = document.getElementById('statusDot');
+            const badge = document.getElementById('statusBadge');
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                const data = await res.json();
+                if (data.status === 1) {
+                    text.innerText = 'Core Online';
+                    dot.style.color = '#00f5ff';
+                    dot.classList.add('online');
+                    badge.style.borderColor = 'rgba(0, 245, 255, 0.3)';
+                    input.disabled = false; sendBtn.disabled = false;
+                    input.placeholder = "Enter your query here...";
+                } else {
+                    text.innerText = 'Indexing...';
+                    dot.style.color = '#eab308';
+                    dot.classList.add('online');
+                    badge.style.borderColor = 'rgba(234, 179, 8, 0.3)';
+                    input.disabled = true; sendBtn.disabled = true;
+                    input.placeholder = "Waiting for core...";
+                }
+            } catch {
+                text.innerText = 'Core Offline';
+                dot.style.color = '#ef4444';
+                dot.classList.remove('online');
+                badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                input.disabled = true; sendBtn.disabled = true;
+                input.placeholder = "Core Connection Failed";
+            }
+        }
+        setInterval(checkHealth, 3000); checkHealth();
+
+        async function handleQuery() {
+            const text = input.value.trim(); if (!text) return;
+            input.value = ''; input.disabled = true; sendBtn.disabled = true;
+            const userM = document.createElement('div'); userM.className = 'message user'; userM.innerText = text; chatArea.appendChild(userM);
+            const typing = document.createElement('div'); typing.className = 'typing-indicator'; typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="font-size:0.75rem; margin-left:10px; color:var(--text-muted)">Thinking...</span>'; chatArea.appendChild(typing);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            resetSteppers();
+            const res = await fetch(`${API_BASE}/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: text, top_k: parseInt(document.getElementById('topKSlider').value) }) });
+            const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
+            while (true) {
+                const { done, value } = await reader.read(); if (done) break;
+                buffer += decoder.decode(value); const lines = buffer.split('\n'); buffer = lines.pop();
+                for (const line of lines) {
+                    if (!line.trim()) continue; const ev = JSON.parse(line);
+                    if (ev.type === 'sources') {
+                        ev.data.forEach(s => { const c = document.createElement('div'); c.className = 'source-card'; c.innerHTML = `<strong>${s.source}</strong><div>${s.text.substring(0, 80)}...</div>`; document.getElementById('sourceList').appendChild(c); });
+                        document.getElementById('step-rag').classList.add('active');
+                    } else if (ev.type === 'draft') {
+                        document.getElementById('step-rag').classList.replace('active', 'completed'); document.getElementById('log-rag').innerText = ev.data; document.getElementById('step-a1').classList.add('active');
+                    } else if (ev.type === 'eval1') {
+                        document.getElementById('step-a1').classList.replace('active', 'completed'); document.getElementById('log-a1').innerText = ev.data; document.getElementById('step-a2').classList.add('active');
+                    } else if (ev.type === 'eval2') {
+                        document.getElementById('step-a2').classList.replace('active', 'completed'); document.getElementById('log-a2').innerText = ev.data; document.getElementById('step-fusion').classList.add('active');
+                    } else if (ev.type === 'final') {
+                        document.getElementById('step-fusion').classList.replace('active', 'completed'); document.getElementById('log-fusion').innerText = "Complete.";
+                        document.getElementById('confidenceScore').innerText = `${ev.confidence}%`;
+                        if (chatArea.contains(typing)) chatArea.removeChild(typing);
+                        const botM = document.createElement('div'); botM.className = 'message bot'; botM.innerHTML = ev.data.replace(/\(([^)]+)\)/g, '<span style="color:var(--accent)">($1)</span>'); chatArea.appendChild(botM);
+                    }
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                }
+            }
+            input.disabled = false; sendBtn.disabled = false; input.focus();
+        }
+        sendBtn.addEventListener('click', handleQuery); input.addEventListener('keypress', e => e.key === 'Enter' && handleQuery());
+
+        function resetSteppers() { ['rag', 'a1', 'a2', 'fusion'].forEach(id => { document.getElementById(`step-${id}`).className = 'step'; document.getElementById(`log-${id}`).innerText = 'Waiting...'; }); document.getElementById('confidenceScore').innerText = '--%'; document.getElementById('sourceList').innerHTML = ''; }
+
+        async function updateStatsView() {
+            const res = await fetch(`${API_BASE}/stats`); const data = await res.json();
+            document.getElementById('stat-total').innerText = data.total_queries || 0;
+            document.getElementById('stat-unique').innerText = (data.unique_queries || []).length;
+            const rate = data.total_queries ? (data.cache_hits / data.total_queries * 100).toFixed(1) : 0;
+            document.getElementById('stat-cache').innerText = `${rate}%`;
+            document.getElementById('stat-cost').innerText = `$${((data.total_tokens || 0) * 0.0002).toFixed(4)}`;
+            updateCharts(data);
+        }
+
+        function updateCharts(data) {
+            const qCount = {}; (data.queries || []).forEach(q => qCount[q.query] = (qCount[q.query] || 0) + 1);
+            const sorted = Object.entries(qCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const labels = sorted.map(s => s[0].substring(0, 15) + '...');
+            if (freqChart) freqChart.destroy();
+            freqChart = new Chart(document.getElementById('freqChart'), { type: 'bar', data: { labels: labels, datasets: [{ data: sorted.map(s => s[1]), backgroundColor: 'rgba(0, 245, 255, 0.5)' }] }, options: { plugins: { legend: { display: false } } } });
+            if (tokenChart) tokenChart.destroy();
+            tokenChart = new Chart(document.getElementById('tokenChart'), { type: 'bar', data: { labels: labels, datasets: [{ data: sorted.map(s => 120), backgroundColor: 'rgba(168, 85, 247, 0.5)' }] }, options: { plugins: { legend: { display: false } } } });
+        }
+
+        async function updateKB() {
+            const res = await fetch(`${API_BASE}/files`);
+            const files = await res.json();
+            document.getElementById('kb-files').innerHTML = files.map(f => {
+                const icon = f.endsWith('.pdf') ? 'fa-file-pdf text-red-400' : 'fa-file-alt text-blue-400';
+                return `<div class="card" style="text-align:center; padding:30px"><i class="fas ${icon}" style="font-size:3rem; margin-bottom:15px; color:var(--accent)"></i><div>${f}</div></div>`;
+            }).join('');
+        }
+
+        async function updateTimeline() {
+            const res = await fetch(`${API_BASE}/stats`);
+            const data = await res.json();
+            const list = (data.queries || []).slice().reverse();
+            document.getElementById('timeline-table').innerHTML = list.map((q, i) => `<tr onclick="showTrace(${i})" style="cursor:pointer"><td>${q.time.split('T')[1].substring(0, 8)}</td><td>${q.query}</td><td>${q.tokens}</td><td>${q.cache ? '✅' : '❌'}</td></tr>`).join('');
+            window.timelineData = list;
+        }
+
+        function showTrace(idx) {
+            const q = window.timelineData[idx];
+            const panel = document.getElementById('tracePanel');
+            const content = document.getElementById('traceContent');
+            panel.classList.add('active');
+            if (!q.trace) { content.innerHTML = '<p>No trace data available for this query.</p>'; return; }
+            content.innerHTML = `
+                <div class="trace-item"><div class="trace-label">Retrieval Time</div><div class="trace-val">${q.trace.retrieve_time.toFixed(4)}s</div></div>
+                <div class="trace-item"><div class="trace-label">Chunks Picked</div><div class="trace-val">${q.trace.chunks_found}</div></div>
+                <div class="trace-item"><div class="trace-label">Source Correlation</div><div class="trace-val">${q.trace.sources.join(', ')}</div></div>
+                <div class="trace-item"><div class="trace-label">Reranking Scores</div><div class="trace-val">${q.trace.scores.map(s => s.toFixed(3)).join(' | ')}</div></div>
+            `;
+        }
+        function closeTrace() { document.getElementById('tracePanel').classList.remove('active'); }
+        async function clearData(type) { await fetch(`${API_BASE}/${type === 'chat' ? 'clear' : 'clear_stats'}`, { method: 'POST' }); if (type === 'chat') { chatArea.innerHTML = ''; resetSteppers(); } else { updateStatsView(); updateTimeline(); } }
+    </script>
+</body>
+
+</html>

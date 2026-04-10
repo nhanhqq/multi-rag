@@ -1,11 +1,12 @@
 {
-    "total_queries": 3,
+    "total_queries": 4,
     "unique_queries": [
         "okay so what is quantum auto encoder?",
         "what is quantum svm? how does it work?",
-        "what is quantum svm?"
+        "what is quantum svm?",
+        "tell me more about quantum svm?"
     ],
-    "total_tokens": 1192,
+    "total_tokens": 1693,
     "cache_hits": 3,
     "queries": [
         {
@@ -98,6 +99,52 @@
                     161,
                     163,
                     162
+                ]
+            }
+        },
+        {
+            "time": "2026-04-10T20:41:31.190003",
+            "query": "tell me more about quantum svm?",
+            "tokens": 501,
+            "cache": false,
+            "trace": {
+                "retrieve_time": 13.12883996963501,
+                "chunks_found": 10,
+                "sources": [
+                    "qsvm.pdf",
+                    "qsvm.pdf",
+                    "qsvm.pdf",
+                    "qsvm.pdf",
+                    "qsvm.pdf",
+                    "qae.pdf",
+                    "qcnn.pdf",
+                    "qae.pdf",
+                    "qae.pdf",
+                    "qae.pdf"
+                ],
+                "scores": [
+                    0.2633761597571732,
+                    0.1032995734861617,
+                    -0.5087058305740356,
+                    -0.41971397399902344,
+                    -1.8898239254951477,
+                    -2.743127157487443,
+                    -3.4120766112182315,
+                    -2.997686764045515,
+                    -2.9110530304754922,
+                    -2.9020776241329953
+                ],
+                "indices": [
+                    160,
+                    161,
+                    175,
+                    163,
+                    162,
+                    93,
+                    133,
+                    84,
+                    39,
+                    91
                 ]
             }
         }

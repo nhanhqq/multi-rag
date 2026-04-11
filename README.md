@@ -1,71 +1,92 @@
-# 🚀 Multi-Agent Hybrid RAG System (with Confidence Scoring)
+# 🚀 Multi-Agent RAG System with MinerU Integration
 
-An advanced **Retrieval-Augmented Generation (RAG)** pipeline that leverages **Hybrid Search** (Dense + Sparse), **Cross-Encoder Reranking**, and an innovative **Iterative Multi-Agent Synthesis** workflow. This system ensures every answer is fact-checked and ends with a **Confidence Score (0-100)** for maximum reliability.
-
----
-
-## 🌟 Key Features
-
-1. **Intelligent Ingestion with LlamaIndex 📁**
-   - Supports multi-format data ingestion (PDF, TXT, MD, DOCX) via `SimpleDirectoryReader`.
-   - Semantic chunking using `SentenceSplitter` to maintain context integrity.
-2. **Hybrid Retrieval Pipeline 🔍**
-   - **Dense Search** using `SentenceTransformers` (`all-MiniLM-L6-v2`) via `FAISS` for pure semantic matching.
-   - **Sparse Search** using lexical `BM25Okapi` to capture exact keyword matches.
-3. **Deep Reranking & Diversity 🧠**
-   - Utilizes `Cross-Encoder` (`ms-marco-MiniLM-L-6-v2`) for top-tier precision.
-   - Applies **MMR (Maximal Marginal Relevance)** and **Context Compression** to provide token-efficient, hit-dense context.
-4. **Multi-Agent Synthesis (Powered by Groq Llama 4) 🤖**
-   Orchestrates 4 independent agents for a "trust but verify" workflow:
-   - **RagAgent (Draft Generator)**: Builds the initial answer from retrieved context.
-   - **Agent 1 (Grounding Auditor)**: Verifies every sentence against the source to prevent hallucinations.
-   - **Agent 2 (Logic & Tone Judge)**: Ensures logical flow and professional delivery.
-   - **FusionAgent (Executive Synthesizer)**: Blends all critiques using the **Llama 4 Scout 17B** engine and provides a final **Confidence Score**.
+A state-of-the-art Retrieval-Augmented Generation (RAG) pipeline designed for Hackathon 2026. This system features autonomous PDF parsing via a distributed MinerU setup and a multi-agent logic layer for high-precision knowledge synthesis.
 
 ---
 
-## 🛠 Project Structure
+## 🏗 System Architecture & Workflow
 
+The architecture is partitioned into three decoupled phases to allow for scalability and robust error handling.
+
+### 🔍 Phase 1: Distributed PDF Preprocessing
+The **MinerU Middleman** (`mineru_trigger.py`) acts as a bridge to overcome local compute limitations. 
+- **Endpoint**: `GET http://localhost:9999/process`
+- **Mechanism**: 
+  1. Scans the local `./pdf` folder for new documents.
+  2. For each document, it triggers a `mineru` CLI command.
+  3. The CLI is configured with `--api-url` to point to a high-performance GPU instance (tunneled via `ngrok`).
+  4. Extracted files (Markdown, Images, JSON) are saved locally into `./output`.
+
+### 📂 Phase 2: Knowledge Base Construction (ETL)
+This phase handles the **Extraction, Transformation, and Loading** of unstructured data into the RAG environment.
+- **Goal**: Isolate and verify clean Markdown content.
+- **Procedure**:
+  - Recursive search: `find ./output -name "*.md"`
+  - Migration: `mv ./output/**/*.md ./data_preprocessed/`
+  - Integration: `loader.py` logic handles the chunking and initial cleaning of these files.
+
+### 🧠 Phase 3: Multi-Agent RAG Runtime
+The core intelligence layer powered by `main.py`.
+- **Server**: FastAPI on `http://localhost:8000`
+- **Retriever Instance**: Initializes a local vector index from `./data_preprocessed`.
+- **Multi-Agent Orchestrator**: 
+  - **Drafting Agent**: Generates initial answers based on retrieved context.
+  - **Auditor Agent**: Checks for hallucinations and accuracy.
+  - **Fusion Agent**: Merges all perspectives into a final, professional response.
+
+---
+
+## 💻 Frontend Interface
+The system includes a high-fidelity **Dashboard** (`UI.html`):
+- **Aether Theme**: Glassmorphism UI with animated backgrounds.
+- **Real-time Streaming**: Visualizes the reasoning steps of each agent.
+- **Analytics Tab**: Deep-dive into retrieval performance and confidence scores.
+
+---
+
+## 🛠 Setup & Installation
+
+### 1. Environment Setup
 ```bash
-├── pdf/                       # Ingestion directory for raw documents
-├── system_promt/              # Strict Agent instructions (Prompt engineering)
-│   ├── rag.txt                # Draft Generation
-│   ├── agent1.txt             # Accuracy Audit
-│   ├── agent2.txt             # Logic & Style Review
-│   └── agent3.txt             # Final Fusion + Confidence Score
-├── RAG.py                     # Hybrid Engine (FAISS + BM25 + Reranking)
-├── loader.py                  # LlamaIndex Document Loader & Parser
-├── llm.py                     # Groq LLM API Wrapper (cleaning & generation)
-├── agents.py                  # Agent definitions & multi-key rotation
-├── main.py                    # Main CLI interface & Orchestration loop
-└── pipeline_diagram.html      # Detailed Visual Workflow Diagram
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+### 2. Dependencies
+```bash
+pip install -r requirements.txt
+pip install fastapi uvicorn requests python-multipart
+```
+
+### 3. Directory Structure
+```text
+├── pdf/                 # Input PDFs
+├── output/              # Raw OCR/Parsing output
+├── data_preprocessed/   # Cleaned MD files for RAG
+├── main.py              # Core RAG API
+├── mineru_trigger.py    # PDF Processing Client
+├── loader.py            # Data loading utilities
+└── UI.html              # Frontend Dashboard
 ```
 
 ---
 
-## ⚡ Getting Started
+## 🚦 Operational Guide
 
-### 1. Prerequisites
-Get your [Groq API](https://console.groq.com) keys. Create a `.env` file with 4 keys to optimize throughput:
-```env
-GROQ_API_KEY1=gsk_...
-GROQ_API_KEY2=gsk_...
-GROQ_API_KEY3=gsk_...
-GROQ_API_KEY4=gsk_...
-```
-
-### 2. Quick Install
-```bash
-pip install faiss-cpu sentence-transformers rank_bm25 groq python-dotenv nltk llama-index llama-index-llms-groq
-```
-
-### 3. Usage
-```bash
-python main.py
-```
+| Step | Command | Description |
+| :--- | :--- | :--- |
+| **Start Proxy** | `python mineru_trigger.py` | Runs the middleman on Port 9999 |
+| **Trigger OCR** | `curl http://localhost:9999/process` | Batch converts PDF to MD |
+| **Start RAG** | `python main.py` | Launches AI Server on Port 8000 |
+| **View UI** | `Open UI.html in Browser` | Access the human interface |
 
 ---
 
-## 📊 System Architecture
+## 📦 Tech Stack
+- **Parsing**: MinerU (Layout-aware)
+- **Frameworks**: FastAPI, Uvicorn
+- **AI Logic**: Multi-Agent RAG with Context Streaming
+- **Networking**: Ngrok for Distributed Workers
 
-For a deep dive into the technical flow, open `pipeline_diagram.html` in your browser. It visualizes the entire process from Offline Indexing to the Multi-Agent Confidence Scoring loop.
+---
+*Created for Advanced Agentic Coding - Hackathon 2026*

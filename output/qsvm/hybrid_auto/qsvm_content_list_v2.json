@@ -1,0 +1,2947 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Supervised learning with quantum-enhanced feature spaces "
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                65,
+                135,
+                836,
+                197
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Vojtěch Havlíček<sup>1,2</sup>, Antonio D. Córcoles<sup>1*</sup>, Kristan Temme<sup>1*</sup>, Aram W. Harrow<sup>3</sup>, Abhinav Kandala<sup>1</sup>, Jerry M. Chow<sup>1</sup> & Jay M. Gambetta<sup>1</sup> "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                200,
+                867,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Machine learning and quantum computing are two technologies that each have the potential to alter how computation is performed to address previously untenable problems. Kernel methods for machine learning are ubiquitous in pattern recognition, with support vector machines (SVMs) being the best known method for classification problems. However, there are limitations to the successful solution to such classification problems when the feature space becomes large, and the kernel functions become computationally expensive to estimate. A core element in the computational speed-ups enabled by quantum algorithms is the exploitation of an exponentially large quantum state space through controllable entanglement and interference. Here we propose and experimentally implement two quantum algorithms on a superconducting processor. A key component in both methods is the use of the quantum state space as feature space. The use of a quantum-enhanced feature space that is only efficiently accessible on a quantum computer provides a possible path to quantum advantage. The algorithms solve a problem of supervised learning: the construction of a classifier. One method, the quantum variational classifier, uses a variational quantum circuit "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{1,2}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to classify the data in a way similar to the method of conventional SVMs. The other method, a quantum kernel estimator, estimates the kernel function on the quantum computer and optimizes a classical SVM. The two methods provide tools for exploring the applications of noisy intermediate-scale quantum computers "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{3}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to machine learning. "
+                    }
+                ]
+            },
+            "bbox": [
+                63,
+                253,
+                497,
+                572
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The intersection between machine learning and quantum computing has attracted considerable attention in recent years "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{4-6}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This has led to a number of recently proposed quantum algorithms "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{1,2,7-9}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Here we present two quantum algorithms that have the potential to run on nearterm quantum devices. A suitable class of algorithms for such noisy devices employs short-depth circuits, because they are amenable to error-mitigation techniques that reduce the effect of decoherence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{10,11}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". There are convincing arguments to indicate that even very simple circuits are hard to simulate classically "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{12,13}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The algorithm we propose takes on the original problem of supervised learning: the construction of a classifier. For this problem, we are given data from a training set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and a test set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": " of a subset  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Omega \\subset \\mathbb{R}^d"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Both are assumed to be labelled by a map  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m: T \\cup S \\to \\{+1, -1\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " unknown to the algorithm. The training algorithm receives only the labels of the training data  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The goal is to infer an approximate map on the test set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\widetilde{m}: S \\to \\{+1, -1\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " such that it agrees with high probability with the true map  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m(s) = \\widetilde{m}(s)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " on the test data  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For this task to be meaningful it is assumed that there is a correlation between the labels given for training and the true map. A classical approach to this problem uses so-called support vector machines (SVMs) "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{14}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A quantum version of this approach has already been proposed in ref. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{15}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where an exponential improvement can be achieved if data is provided in a coherent superposition. However, when data is provided in the conventional way, that is, from a classical computer, then the methods of ref. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{15}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " do not yield this speed-up. "
+                    }
+                ]
+            },
+            "bbox": [
+                63,
+                573,
+                497,
+                891
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Here we propose two binary classifiers that process data that is provided classically and use the quantum state space as feature "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                891,
+                497,
+                918
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "space. The data is mapped non-linearly to a quantum state  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPhi: x \\in \\Omega \\rightarrow |\\varPhi(x)\\rangle \\langle \\varPhi(x)|"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; see Fig. 1a. In the first approach we use a variational circuit as given in refs  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{1,2,16,17}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " followed by a binary measurement. Any binary measurement that classifies the data based on the probability of observing one outcome over the other implements a separating hyperplane in state space. Like an SVM, this approach constructs a linear decision function in feature space. The second approach builds on this observation and constructs the hyperplane using a classical SVM, only using the quantum computer to estimate the kernel function. This second approach inherits the performance guarantees from the classical SVM. We implement both classifiers on a superconducting quantum processor with five coupled superconducting transmons, only two of which are used in this work, as shown in Fig. 2a. In the experiment, we want to separate the question of whether the classifier can be implemented in hardware from the problem of choosing a suitable feature map for a practical dataset. The data that are classified here are chosen so that they can be classified with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "100\\%"
+                    },
+                    {
+                        "type": "text",
+                        "content": " success to verify the method. We experimentally demonstrate that this success ratio is achieved. "
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                253,
+                939,
+                492
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Training and classification with conventional SVMs is efficient when inner products between feature vectors can be evaluated efficiently "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{14,18,19}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Classifiers based on quantum circuits, such as the one presented in Fig. 2c, cannot provide a quantum advantage over a conventional SVM if the feature vector kernel  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K(\\pmb{x},\\pmb{z}) = |\\langle \\varPhi(\\pmb{x})|\\varPhi(\\pmb{z})\\rangle|^2"
+                    },
+                    {
+                        "type": "text",
+                        "content": " can be computed efficiently on a classical computer. For example, a classifier that uses a feature map that generates only product states can be evaluated in time  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{O}(n)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " for  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n"
+                    },
+                    {
+                        "type": "text",
+                        "content": " qubits. To obtain an advantage over classical approaches we need to implement a map based on circuits that are hard to simulate classically. Since quantum computers are not expected to be classically simulable, there exists a long list of (universal) circuit families we can choose from. Here we use a circuit that works well in our experiments and is not too deep. We define a feature map on  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-qubits generated by the unitary  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{U}_{\\varPhi(\\pmb{x})}=U_{\\varPhi(\\pmb{x})}H^{\\otimes n}U_{\\varPhi(\\pmb{x})}H^{\\otimes n}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H"
+                    },
+                    {
+                        "type": "text",
+                        "content": " denotes the conventional Hadamard gate and "
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                493,
+                939,
+                694
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "U _ {\\Phi (\\boldsymbol {x})} = \\exp \\left(i \\sum_ {S \\subseteq [ n ]} \\phi_ {S} (\\boldsymbol {x}) \\prod_ {i \\in S} Z _ {i}\\right)",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7308872db73a7f547006149b7c8eb8688c30b5c3e105e3edfde353119ea9ae83.jpg"
+                }
+            },
+            "bbox": [
+                623,
+                701,
+                823,
+                740
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "is a diagonal gate in the Pauli  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-basis; see Fig. 1b. This circuit acts on the initial state  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|0\\rangle^n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We use the coefficients  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi_S(x) \\in \\mathbb{R}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to encode the data  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x \\in \\Omega"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In general any diagonal unitary  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U_{\\varPhi(\\pmb{x})}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " can be used if it can be implemented efficiently. This is, for instance, the case when only weight  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|S| \\leq 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": " interactions are considered. The exact evaluation of the inner product between two states generated from a similar circuit with only a single diagonal layer  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U_{\\varPhi(x)}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# P"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-hard<sup>20</sup>. Nonetheless, in the experimentally relevant context of additive error approximation, simulation of a single-layer preparation circuit can be achieved efficiently classically by uniform sampling<sup>21</sup>. We conjecture that the additive error approximation of inner products generated from circuits with two Hadamard layers and diagonal gates is hard classically; see Supplementary Information for a discussion. "
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                744,
+                939,
+                918
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "LETTER "
+                    }
+                ]
+            },
+            "bbox": [
+                70,
+                43,
+                297,
+                82
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "https://doi.org/10.1038/s41586-019-0980-2 "
+                    }
+                ]
+            },
+            "bbox": [
+                675,
+                79,
+                939,
+                93
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>IBM T. J. Watson Research Center, Yorktown Heights, NY, USA. <sup>2</sup>Department of Computer Science, University of Oxford, Wolfson Building, Parks Road, Oxford, UK. <sup>3</sup>Center for Theoretical Physics, Massachusetts Institute of Technology, Cambridge, MA, USA. *e-mail: adcorcol@us.ibm.com; kptemme@ibm.com "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                936,
+                929,
+                959
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "14 MARCH 2019 | VOL 567 | NATURE | 209 "
+                    }
+                ]
+            },
+            "bbox": [
+                633,
+                970,
+                939,
+                983
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/c6cf1117b17c0e97b9798c8ab98e0518a158f853cb6caaa2c974f83c4ccd2dc9.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                206,
+                70,
+                458,
+                211
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7a32779bf6dcdf043774607124c1e7135d876f728625e1209dba1d340cfc00f6.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 1 | Quantum kernel functions. a, Feature map representation for a single qubit. A classical dataset in the interval  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Omega = (0,2\\pi]"
+                    },
+                    {
+                        "type": "text",
+                        "content": " with binary labels (a, right) can be mapped onto the Bloch sphere (red and blue lines) by using the non-linear feature map described in b. For a single qubit  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U_{\\varPhi(x)}=Z_x"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is a phase-gate of angle  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x\\in \\Omega"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The mapped data can be separated by the hyperplane given by normal  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". States with a positive expectation value of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w"
+                    },
+                    {
+                        "type": "text",
+                        "content": " receive a  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[+1]"
+                    },
+                    {
+                        "type": "text",
+                        "content": " (red) label, while negative values are "
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                480,
+                70,
+                781,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To test our two methods, we generate artificial data that can be fully separated by our feature map. We use the map for  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n = d = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": " qubits in Fig. 1b with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi_{\\{i\\}}(\\pmb{x}) = x_i"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi_{\\{1,2\\}}(\\pmb{x}) = (\\pi - x_1)(\\pi - x_2)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We generate the labels for data vectors  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{x} \\in T \\cup S \\subset (0, 2\\pi]^2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", by first choosing  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = Z_1Z_2"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and a random unitary  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V \\in SU(4)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". To vary the distribution of the data in the experiments three different unitaries were chosen at random. Once a unitary is fixed we sample the data points  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{x}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and assign  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m(\\pmb{x}) = \\pm 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", when  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\langle \\varPhi(\\pmb{x}) | V^\\dagger fV | \\varPhi(\\pmb{x}) \\rangle \\geq \\varDelta"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m(\\pmb{x}) = -1"
+                    },
+                    {
+                        "type": "text",
+                        "content": " when  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\langle \\varPhi(\\pmb{x}) | V^\\dagger fV | \\varPhi(\\pmb{x}) \\rangle \\leq -\\varDelta"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; see Fig. 3b. The data has been separated by a gap of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta = 0.3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For each unitary, multiple training sets and classification sets each consisting of 20 data points per label were chosen uniformly at random. We show one such classification set as circle symbols in Fig. 3b. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                318,
+                485,
+                494
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first classification protocol, quantum variational classification, follows four steps. First, the data  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{x} \\in \\Omega"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is mapped to a quantum state by applying the feature map circuit  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{U}_{\\varPhi(\\pmb{x})}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " in Fig. 1b to  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|0\\rangle^n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Second, a short-depth quantum circuit  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W(\\pmb{\\theta})"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", described in Fig. 2b, is applied to the feature state. This circuit with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l"
+                    },
+                    {
+                        "type": "text",
+                        "content": " layers is parameterized by  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{\\theta} \\in \\mathbb{R}^{2n(l + 1)}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and will be optimized during training. Third, for a two-label  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y \\in \\{+1, -1\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " classification problem, a binary measurement  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{M_y\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " diagonal in the  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-basis is applied to the state  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W(\\pmb{\\theta})\\mathcal{U}_{\\varPhi(\\pmb{x})}|0\\rangle^n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Any measurement of this form can be written as  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M_y = 2^{-1}(1 + yf)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", when  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = \\sum_{z \\in \\{0,1\\}^n} f(z)|z\\rangle \\langle z|"
+                    },
+                    {
+                        "type": "text",
+                        "content": " for some Boolean function  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f: \\{0,1\\}^n \\rightarrow \\{+1, -1\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This is implemented by measuring in the  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-basis and applying  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to the output bit-string. The probability of obtaining outcome  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p_y(x) = \\langle \\varPhi(x)|W^\\dagger(\\pmb{\\theta})M_yW(\\pmb{\\theta})|\\varPhi(x)\\rangle"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Fourth, for the decision rule we perform  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R"
+                    },
+                    {
+                        "type": "text",
+                        "content": " repeated measurement shots to obtain the empirical distribution  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{p}_y(x)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We assign the label  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tilde{m}(x) = y"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", whenever  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{p}_y(x) > \\hat{p}_{-y}(x) - yb"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where we have introduced an additional bias parameter  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b \\in [-1,1]"
+                    },
+                    {
+                        "type": "text",
+                        "content": " that can be optimized during training. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                494,
+                485,
+                732
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The feature map circuit  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{U}_{\\Phi(x)}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", as well as the Boolean function  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", are fixed choices. During the training of the classifier we optimize the parameters  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "(\\theta, b)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For the optimization, we need to define a cost function. For a single training sample we use the error probability  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname*{Pr}(\\widetilde{m}(\\boldsymbol{x}) \\neq m(\\boldsymbol{x}))"
+                    },
+                    {
+                        "type": "text",
+                        "content": " of assigning the wrong label from the empirical distribution with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R"
+                    },
+                    {
+                        "type": "text",
+                        "content": " shots. We optimize the empirical risk  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R_{\\mathrm{emp}}(\\theta)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " given by the error probability averaged over the full training set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". See Supplementary Information for details. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                734,
+                485,
+                839
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The experiment itself is split into two phases; First, we train the classifier and optimize  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "(\\theta, b)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We have found that Spall's simultaneous perturbation stochastic approximation (SPSA)[22,23] algorithm performs well in the noisy experimental setting. We can use the circuit as a classifier after the parameters have converged to  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "(\\theta^{*}, b^{*})"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Second, in the classification phase, the classifier assigns labels to unlabelled data  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": " according to the decision rule  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\widetilde{m}(s)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                839,
+                485,
+                932
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We implement the quantum variational classifier  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W(\\pmb{\\theta})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " for five different depths ( "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": ") (see Fig. 2b), on the superconducting "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                932,
+                485,
+                960
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "labelled  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[-1]"
+                    },
+                    {
+                        "type": "text",
+                        "content": " (blue). b, For the general circuit  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U_{\\varPhi(x)}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is formed by products of single- and two-qubit unitaries that are diagonal in the computational basis. In our experiments, both the training and testing data are artificially generated to be perfectly classifiable using the feature map. The circuit family depends non-linearly on the data through the coefficients  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi_S(x)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|S| \\leq 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". c, Experimental implementation of the parameterized diagonal single- and two-qubit operations using CNOTs and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-gates. "
+                    }
+                ]
+            },
+            "bbox": [
+                497,
+                215,
+                927,
+                303
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "quantum processor. We expect a higher classification success for increased depth. The binary measurement is obtained from the parity function  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = Z_{1}Z_{2}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For each depth we generate data from three different random unitaries. We use training sets consisting of 20 data points per label. The data from one of these unitaries, together with a training set, is shown in Fig. 3b. "
+                    }
+                ]
+            },
+            "bbox": [
+                497,
+                318,
+                929,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The optimization of the empirical risk  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R_{\\mathrm{emp}}(\\pmb{\\theta})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is shown in Fig. 3a for two different training sets and depths. In all experiments throughout this work we implemented an error mitigation technique that relies on zero-noise extrapolation to first order[10,24]. To obtain a zero-noise estimate, a copy of the circuit was run on a timescale slowed down by a factor of 1.5; see Supplementary Information. This technique is "
+                    }
+                ]
+            },
+            "bbox": [
+                497,
+                400,
+                929,
+                479
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/32e0914f3981aef1995050cdf464e050db8aabf45d9e2e40bf994a23e5840713.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                502,
+                507,
+                670,
+                631
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/9669ba382034a990c9c58df3852103e4a4aa2d14fa70d3e710b39adc0e0e15f8.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                680,
+                506,
+                828,
+                634
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b8991ded62ff5315bd4c6a53c2d51ac2a71367f72fd2c4e355d01a8edd941ca5.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                831,
+                521,
+                924,
+                622
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/c0f4c27cea90af38ca743dc981a7e91891c7f529f3593ccb5cd6cddbc84458e2.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 2 | Experimental implementations. a, Schematic of the five-qubit quantum processor. The experiment was performed on qubits  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q_{0}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q_{1}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", highlighted in the image. b, Variational circuit used for our optimization method. The two top qubits depict the circuit implemented. We choose a common ansatz for the variational unitary  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W(\\pmb{\\theta}) = U_{\\mathrm{loc}}^{(l)}(\\theta_l)U_{\\mathrm{ent}}\\dots U_{\\mathrm{loc}}^{(2)}(\\theta_2)U_{\\mathrm{ent}}U_{\\mathrm{loc}}^{(1)}(\\theta_1)^{16,17}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We alternate layers of entangling gates  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U_{\\mathrm{ent}} = \\prod_{(i,j)\\in E}\\mathsf{CZ}(i,j)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " with full layers of single-qubit rotations  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U_{\\mathrm{loc}}^{(t)}(\\theta_t) = \\otimes_{i = 1}^n U(\\theta_{i,t})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U(\\theta_{i,t})\\in \\mathrm{SU}(2)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For the entangling step we use controlled-  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z"
+                    },
+                    {
+                        "type": "text",
+                        "content": " phase gates  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf{CZ}(i,j)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " along the edge (0, 1) of the interaction graph  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E"
+                    },
+                    {
+                        "type": "text",
+                        "content": " of the superconducting chip. The grey background illustrates the scaling to a larger number of qubits. c, Circuit to directly estimate the fidelity between a pair of feature vectors for data  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z"
+                    },
+                    {
+                        "type": "text",
+                        "content": " as used for our second method. The circuit on  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q_{0}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ",  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q_{1}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " depicts the circuit implemented, while the grey background illustrates the general structure of the circuit. The circuit is comprised of Hadamard gates  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H"
+                    },
+                    {
+                        "type": "text",
+                        "content": " interleaved with the diagonal unitary  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U_{\\phi (x)}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " parameterized by  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi_S(x)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to directly estimate the fidelity between a pair of feature vectors for data  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z"
+                    },
+                    {
+                        "type": "text",
+                        "content": " as used for our second method. "
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                502,
+                637,
+                927,
+                744
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "RESEARCH LETTER "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                27,
+                203,
+                45
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "210 "
+                    }
+                ]
+            },
+            "bbox": [
+                58,
+                972,
+                82,
+                981
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "NATURE | VOL 567 | 14 MARCH 2019 "
+                    }
+                ]
+            },
+            "bbox": [
+                95,
+                972,
+                361,
+                982
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b33d152520696c35a8c8216641929a2c09799a5e456b587baae5ae71947a1af6.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                181,
+                68,
+                495,
+                146
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/4eebb7efe33a8a9ec2ad5facc81f929cf42af00ff6dc5eef5669e25ac7eefe45.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                181,
+                148,
+                549,
+                279
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/591d38a374487b4546ecf8c94a7eb2c9a74c260d01140eddf9e6ae31b7d550ca.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "b "
+                    },
+                    {
+                        "type": "text",
+                        "content": "Fig. 3 | Convergence of the method and classification results. a, Convergence of the cost function  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R_{\\mathrm{emp}}(\\theta)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " after 250 iterations of Spall's SPSA algorithm. Red (or black) curves correspond to  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": " (or  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "). The cost function with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{P}_k"
+                    },
+                    {
+                        "type": "text",
+                        "content": " estimates obtained from zero-noise extrapolation (solid lines) is compared to the cost function with unmitigated estimates (dashed). We train three datasets per depth and perform 20 classifications per trained set. c, The classifications results are shown as blue histograms for all three randomly chosen unitaries (a total of 60 classifications per depth and 20 data points per classification per label), with mean values represented by black dots. The error bar is the standard error of the mean. The inset shows histograms as a function of the probability of measuring label +1 for one test set of 20 points per label obtained with an  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": " classifier circuit, depicting classification of this set with 100% success. "
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                552,
+                69,
+                823,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "implemented at each trial step, and the mitigated cost function is fed to the classical optimizer. We observe that the empirical risk in Fig. 3a converges to a lower value for depth  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": " than for  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", albeit with more optimization steps. The number of shots is an explicit parameter in  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname{Pr}(\\widetilde{m}(\\boldsymbol{x}) \\neq m(\\boldsymbol{x}))"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R = 200"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to obtain a smoother cost function, even though we used 2,000 shots in the experiment to estimate  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{p}_{\\nu}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                460,
+                495,
+                541
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "After each training is completed, we use the trained parameters  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "(\\theta^{*}, b^{*} = 0)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to classify 20 different test sets—where each set of 20 inputs with plus labels and 20 inputs with minus labels is drawn uniformly at random for each of the three different random unitaries. We run these classification experiments at 20,000 shots, versus the 2,000 used for training. The classification of each data point is error-mitigated. Figure 3c shows the classification results for our quantum variational approach. We observe an increase in classification success with increasing circuit depth (see Fig. 3c), reaching values very close to  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "100\\%"
+                    },
+                    {
+                        "type": "text",
+                        "content": " for depths larger than 1. This classification success remarkably persists to depth 4, despite the decoherence associated with eight CNOTs in the training and classification circuits, for  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                541,
+                495,
+                698
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The binary measurement of the variational circuit classifier corresponds to a separating hyperplane in the quantum feature space and implements a linear threshold function as used in a conventional SVM "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{14,18}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". To see this, we write  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p_{y}(\\pmb{x}) = 2^{-1}(1 + y \\langle \\Phi(\\pmb{x}) | W^{\\dagger}(\\pmb{\\theta}) f W(\\pmb{\\theta}) | \\Phi(\\pmb{x}) \\rangle)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If we now define  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W^{\\dagger}(\\pmb{\\theta}) f W(\\pmb{\\theta}) = \\pmb{w}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and the state  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPhi(\\pmb{x}) = |\\varPhi(\\pmb{x})\\rangle \\langle \\varPhi(\\pmb{x})|"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the ideal decision rule  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p_{y}(\\pmb{x}) > p_{-y}(\\pmb{x}) - y b"
+                    },
+                    {
+                        "type": "text",
+                        "content": " corresponds to the labelling function  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\widetilde{m}(x) = \\mathrm{sign}(\\mathrm{tr}[w \\varPhi(\\pmb{x})] + b)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The trace is read as the Hilbert-Schmidt inner product between the normal vector  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{w}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and the mapped datum  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPhi(\\pmb{x})"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This provides the motivation to interpret the quantum state space as feature space with vectors  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|\\varPhi(\\pmb{x})\\rangle \\langle \\varPhi(\\pmb{x})|"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and inner products  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K(\\pmb{x},\\pmb{z}) = |\\langle \\varPhi(\\pmb{x})|\\varPhi(\\pmb{z})\\rangle|^2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We note that the use of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{H} = (\\mathbb{C}^2)^{\\otimes n}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " as feature space would lead to a conceptual problem since a vector  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|\\varPhi(\\pmb{x})\\rangle \\in \\mathcal{H}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is only physically defined up to a global phase. "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                700,
+                495,
+                893
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A shallow variational circuit can restrict the possible hyperplane normal  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{w}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". An unrestricted optimization over all hyperplanes, such as the standard Wolfe-dual of the SVM "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{14}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", can be used when the kernel  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K(\\pmb{x}, \\pmb{z})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is known. This optimization problem only depends on  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|T|"
+                    },
+                    {
+                        "type": "text",
+                        "content": " variables and is concave whenever  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K(\\pmb{x}_i, \\pmb{x}_j)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is positive semi-definite. "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                893,
+                495,
+                962
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The dashed red lines show the results of our direct kernel estimation method for comparison, with Sets I and II yielding  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "100\\%"
+                    },
+                    {
+                        "type": "text",
+                        "content": " success and Set III yielding  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "94.75\\%"
+                    },
+                    {
+                        "type": "text",
+                        "content": " success. b, Example data used for both methods in this work. The data labels (red for  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "+1"
+                    },
+                    {
+                        "type": "text",
+                        "content": " label and blue for  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "-1"
+                    },
+                    {
+                        "type": "text",
+                        "content": " label) are generated with a gap of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Delta = 0.3"
+                    },
+                    {
+                        "type": "text",
+                        "content": " (white areas). The training set with 20 points per label is shown as white and black circles. For the quantum kernel estimation method we show the support vectors (green circles) and a classified test set (white and black squares). Three points are misclassified, labelled as A, B and C. For each of the test data points  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s_j"
+                    },
+                    {
+                        "type": "text",
+                        "content": " we plot "
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                284,
+                937,
+                394
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sum_{i}y_{i}\\alpha_{i}^{*}K(\\pmb{x}_{i},\\pmb{s}_{j})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " at the bottom of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf{b}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Points A, B and C, all belonging to label  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "+1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", give  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sum_{i}y_{i}\\alpha_{i}^{*}K(\\pmb{x}_{i},\\pmb{s}_{j}) = -1.033, -0.367"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "-1.082"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively. "
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                394,
+                934,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This means that the unique, optimal solution can be found with polynomial resources in the training set size. "
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                460,
+                937,
+                487
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The second classification protocol, quantum kernel estimation, uses this connection to implement a conventional SVM with this kernel directly. The quantum computer is used twice in this protocol. First, the kernel  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K(\\pmb{x}_i, \\pmb{x}_j)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is estimated on a quantum computer for all pairs of training samples  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{x}_i, \\pmb{x}_j \\in T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; see Fig. 2c. This kernel is then used in the Wolfe-dual SVM to find the optimal hyperplane. In the classification phase the quantum computer is used a second time to estimate the kernel  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K(\\pmb{x}_i, \\pmb{s})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " for a new datum  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and the support vectors from the "
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                487,
+                939,
+                600
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/650a7bb7c71f207eb2a0927d8dd968542644082c21102bc722fdee8e4f60320d.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                514,
+                621,
+                937,
+                764
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/5fc9f81011abba1003397bdd14e8ee810ccde72e47cf48c852ae55b6f10ce47c.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 4 | Kernels for Set III. a, Experimental (left) and ideal (right) kernel matrices containing the inner products of all data points used for training Set III (round symbols in Fig. 3b). The maximal deviation from the ideal kernel  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|K - \\hat{K}|"
+                    },
+                    {
+                        "type": "text",
+                        "content": " occurs at element  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K_{8,15}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A cut through row 8 (indicated by the red arrow in a) is shown in b, where the experimental (or ideal) results are shown as red (or blue) bars. We note that entries that are close to zero in the kernel can become negative (such as  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K_{8,30}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " in b) when the erromitigation technique is applied. "
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                531,
+                765,
+                914,
+                856
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "LETTER RESEARCH "
+                    }
+                ]
+            },
+            "bbox": [
+                793,
+                30,
+                931,
+                44
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "14 MARCH 2019 | VOL 567 | NATURE "
+                    }
+                ]
+            },
+            "bbox": [
+                636,
+                972,
+                899,
+                982
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "211 "
+                    }
+                ]
+            },
+            "bbox": [
+                917,
+                973,
+                937,
+                982
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x_{i} \\in T"
+                    },
+                    {
+                        "type": "text",
+                        "content": " obtained from the optimization. This is sufficient to construct the full SVM classifier. A detailed description is provided in Supplementary Information. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                69,
+                485,
+                110
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To estimate the inner product for the kernel, standard methods could be used[25,26]. However, since the feature map circuits are given, the overlap can be estimated directly from the transition amplitude  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|\\langle \\varPhi(x) | \\varPhi(z) \\rangle|^2 = |\\langle 0^n | \\mathcal{U}_{\\varPhi(x)}^\\dagger \\mathcal{U}_{\\varPhi(z)} | 0^n \\rangle|^2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". First, we apply the circuit Fig. 2c, a composition of two feature map circuits to  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|0^n\\rangle"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, we measure the final state in the  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-basis  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R"
+                    },
+                    {
+                        "type": "text",
+                        "content": " times and record the frequency of observing the  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0^n"
+                    },
+                    {
+                        "type": "text",
+                        "content": " string. This frequency is the estimate of the transition probability. Each kernel entry is obtained to an additive sampling error of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\epsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": " when  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{O}(\\epsilon^{-2})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " shots are used. In the training phase a total of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{O}(|T|^2)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " amplitudes have to be estimated. An estimator  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{K}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " for the kernel matrix that deviates with high probability in operator norm from the exact kernel  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K"
+                    },
+                    {
+                        "type": "text",
+                        "content": " by at most  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "||K - \\hat{K}|| \\leq \\delta"
+                    },
+                    {
+                        "type": "text",
+                        "content": " can be obtained with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R = \\mathcal{O}(\\delta^{-2} |T|^4)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " shots in total. The sampling error can compromise the positive semidefiniteness of the kernel. Although not applied in this work, this can be remedied by employing an adaption of the scheme presented in ref.[27]. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                110,
+                485,
+                308
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the experimental implementation of estimating the kernel matrix  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{K}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " (see circuit in Fig. 2c), we again apply the error-mitigation protocol "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^{10,24}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to first order. We use 50,000 shots per matrix entry. We run the training stage on data obtained from three different unitaries, which we will label as Set I, Set II and Set III. Set III is shown in Fig. 3b. The training data used to obtain the kernel and the support vectors are the same data used in the training of our variational classifier. The support vectors (green circles in Fig. 3b) are then used to classify ten different test sets randomly drawn from each entire set. Set I and Set II each yield  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "100\\%"
+                    },
+                    {
+                        "type": "text",
+                        "content": " success over the classification of all ten different test sets, whereas Set III averages a success of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "94.75\\%"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For more details see Supplementary Information. These classification results are given in Fig. 3c as dashed red lines to compare with the results of our variational method. In Fig. 4a we show the ideal and the experimentally obtained kernel matrices,  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{K}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for Set III. The largest deviation between  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat{K}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " is found in row (or column) 8, depicted in Fig. 4b. All support vectors for the three sets and equivalent plots are given in Supplementary Information. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                310,
+                485,
+                535
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The two classifiers—a variational quantum classifier and a quantum kernel estimator—build upon the realization that a feature map that is hard to estimate classically is an important part of creating a quantum advantage. This realization enables us to search for machine learning algorithms that are accessible to noisy intermediate-scale (NISQ) devices. It will be intriguing to develop suitable feature maps for quantum state spaces, which have a provable quantum advantage while providing a substantial improvement on real-world datasets. Given the ubiquity of kernel methods in machine learning, we are optimistic that our technique will extend application beyond binary classification. Our experiments also highlight the impact of noise on the success of such hybrid algorithms, and demonstrate that these error-mitigation techniques present a route to accurate classification even with NISQ hardware. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                535,
+                485,
+                706
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "During the preparation of this manuscript we became aware of the independent theoretical work by Schuld et al.[28,29]. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                707,
+                485,
+                734
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Data availability "
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                57,
+                746,
+                184,
+                759
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "All data generated or analysed during this study are included in this Letter (and its Supplementary Information). "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                760,
+                485,
+                784
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Online content "
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                57,
+                797,
+                174,
+                808
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Any methods, additional references, Nature Research reporting summaries, source data, statements of data availability and associated accession codes are available at https://doi.org/10.1038/s41586-019-0980-2. "
+                    }
+                ]
+            },
+            "bbox": [
+                55,
+                810,
+                485,
+                846
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Received: 26 June 2018; Accepted: 16 January 2019 "
+                    }
+                ]
+            },
+            "bbox": [
+                57,
+                853,
+                374,
+                867
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Published online 13 March 2019. "
+                    }
+                ]
+            },
+            "bbox": [
+                58,
+                868,
+                257,
+                879
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "1. Mitarai, K., Negoro, M., Kitagawa, M. & Fujii, K. Quantum circuit learning. Preprint at https://arxiv.org/abs/1803.00745 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "2. Farhi, E. & Neven, H. Classification with quantum neural networks on near term processors. Preprint at https://arxiv.org/abs/1802.06002 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "3. Preskill, J. Quantum computing in the NISQ era and beyond. Preprint at https://arxiv.org/abs/1801.00862 (2018). "
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                57,
+                893,
+                478,
+                955
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "4. Arunachalam, S. & de Wolf, R. Guest column: a survey of quantum learning theory. SIGACT News 48, 41-67 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "5. Ciliberto, C. et al. Quantum machine learning: a classical perspective. Proc. R. Soc. Lond. A 474, 20170551 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "6. Dunjko, V. & Briegel, H. J. Machine learning & artificial intelligence in the quantum domain: a review of recent progress. Rep. Prog. Phys. 81, 074001 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "7. Biamonte, J. et al. Quantum machine learning. Nature 549, 195-202 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "8. Romero, J., Olson, J. P. & Aspuru-Guzik, A. Quantum autoencoders for efficient compression of quantum data. Quant. Sci. Technol. 2, 045001 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "9. Wan, K. H., Dahlsten, O., Kristjansson, H., Gardner, R. & Kim, M. Quantum generalisation of feedforward neural networks. Preprint at https://arxiv.org/abs/1612.01045 (2016). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "10. Temme, K., Bravyi, S. & Gambetta, J. M. Error mitigation for short-depth quantum circuits. Phys. Rev. Lett. 119, 180509 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "11. Li, Y. & Benjamin, S. C. Efficient variational quantum simulator incorporating active error minimization. Phys. Rev. X 7, 021050 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "12. Terhal, B. M. & DiVincenzo, D. P. Adaptive quantum computation, constant depth quantum circuits and Arthur-Merlin games. Quantum Inf. Comput. 4, 134-145 (2004). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "13. Bremner, M. J., Montanaro, A. & Shepherd, D. J. Achieving quantum supremacy with sparse and noisy commuting quantum computations. Quantum 1, 8 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "14. Vapnik, V. The Nature of Statistical Learning Theory (Springer Science & Business Media, 2013). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "15. Rebentrost, P., Mohseni, M. & Lloyd, S. Quantum support vector machine for big data classification. Phys. Rev. Lett. 113, 130503 (2014). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "16. Kandala, A. et al. Hardware-efficient variational quantum eigensolver for small molecules and quantum magnets. Nature 549, 242-246 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "17. Farhi, E., Goldstone, J., Gutmann, S. & Neven, H. Quantum algorithms for fixed qubit architectures. Preprint at https://arxiv.org/abs/1703.06199 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "18. Burges, C. J. A tutorial on support vector machines for pattern recognition. Data Min. Knowl. Discov. 2, 121-167 (1998). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "19. Boser, B. E., Guyon, I. M. & Vapnik, V. N. A training algorithm for optimal margin classifiers. In Proc. 5th Annual Workshop on Computational Learning Theory 144-152 (ACM, 1992). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "20. Goldberg, L. A. & Guo, H. The complexity of approximating complex-valued Ising and Tutte partition functions. Computat. Complex. 26, 765-833 (2017). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "21. Demarie, T. F., Ouyang, Y. & Fitzsimons, J. F. Classical verification of quantum circuits containing few basis changes. Phys. Rev. A 97, 042319 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "22. Spall, J. C. A one-measurement form of simultaneous perturbation stochastic approximation. Automatica 33, 109-112 (1997). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "23. Spall, J. C. Adaptive stochastic approximation by the simultaneous perturbation method. IEEE Trans. Automat. Contr. 45, 1839 (2000). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "24. Kandala, A. et al. Extending the computational reach of a noisy superconducting quantum processor. Preprint at https://arxiv.org/abs/1805.04492 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "25. Buhrman, H., Cleve, R., Watrous, J. & De Wolf, R. Quantum fingerprinting. Phys. Rev. Lett. 87, 167902 (2001). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "26. Cincio, L., Subas, Y., Sornborger, A. T. & Coles, P. J. Learning the quantum algorithm for state overlap. Preprint at https://arxiv.org/abs/1803.04114 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "27. Smolin, J. A., Gambetta, J. M. & Smith, G. Efficient method for computing the maximum-likelihood quantum state from measurements with additive Gaussian noise. Phys. Rev. Lett. 108, 070502 (2012). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "28. Schuld, M. & Killoran, N. Quantum machine learning in feature Hilbert spaces. Preprint at https://arxiv.org/abs/1803.07128 (2018). "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "29. Schuld, M., Bocharov, A., Svore, K. & Wiebe, N. Circuit-centric quantum classifiers. Preprint at https://arxiv.org/abs/1804.00633 (2018). "
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                500,
+                67,
+                927,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgements We thank S. Bravyi for discussions. A.W.H. acknowledges funding from the MIT-IBM Watson AI Lab under the project 'Machine Learning in Hilbert Space'. The research was supported by the IBM Research Frontiers Institute. We acknowledge support from IARPA under contract W911NF-10-1-0324 for device fabrication. "
+                    }
+                ]
+            },
+            "bbox": [
+                499,
+                660,
+                917,
+                713
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Reviewer information Nature thanks Christopher Eichler, Seth Lloyd, Maria Schuld and the other anonymous reviewer(s) for their contribution to the peer review of this work. "
+                    }
+                ]
+            },
+            "bbox": [
+                499,
+                721,
+                917,
+                753
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Author contributions The work on the classifier theory was led by V.H. and K.T. The experiment was designed by A.D.C., J.M.G. and K.T. and implemented by A.D.C. All authors contributed to the manuscript. "
+                    }
+                ]
+            },
+            "bbox": [
+                499,
+                762,
+                917,
+                794
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Competing interests The authors declare competing interests: Elements of this work are included in a patent filed by the International Business Machines Corporation with the US Patent and Trademark office. "
+                    }
+                ]
+            },
+            "bbox": [
+                499,
+                803,
+                917,
+                834
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Additional information "
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                500,
+                844,
+                626,
+                853
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "text_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Supplementary information is available for this paper at https://doi.org/10.1038/s41586-019-0980-2. "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Reprints and permissions information is available at http://www.nature.com/reprints. "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Correspondence and requests for materials should be addressed to A.D.C. or K.T. "
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Publisher's note: Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations. "
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                500,
+                854,
+                919,
+                935
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "© The Author(s), under exclusive licence to Springer Nature Limited 2019 "
+                    }
+                ]
+            },
+            "bbox": [
+                500,
+                944,
+                894,
+                956
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "RESEARCH LETTER "
+                    }
+                ]
+            },
+            "bbox": [
+                65,
+                29,
+                203,
+                45
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "212 "
+                    }
+                ]
+            },
+            "bbox": [
+                57,
+                972,
+                82,
+                981
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "NATURE | VOL 567 | 14 MARCH 2019 "
+                    }
+                ]
+            },
+            "bbox": [
+                95,
+                972,
+                359,
+                982
+            ]
+        }
+    ]
+]

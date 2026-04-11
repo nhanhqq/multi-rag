@@ -1,0 +1,2352 @@
+[
+    {
+        "type": "text",
+        "text": "Quantum autoencoders for image classification ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            158,
+            752,
+            181
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Hinako Asaoka1* and Kazue Kudo1,2† ",
+        "bbox": [
+            314,
+            202,
+            640,
+            219
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1*Department of Computer Science, Ochanomizu University, 2-1-1 Otsuka, Bunkyo-ku, 112-8610, Tokyo, Japan. ",
+        "bbox": [
+            211,
+            227,
+            742,
+            260
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "2Graduate School of Information Sciences, Tohoku University, 6-3-09 Aoba, Aramaki-aza Aoba-ku, Sendai, 980-8579, Miyagi, Japan. ",
+        "bbox": [
+            201,
+            261,
+            754,
+            293
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "*Corresponding author(s). E-mail(s): asaoka.hinako@is.ocha.ac.jp; †These authors contributed equally to this work. ",
+        "bbox": [
+            208,
+            321,
+            746,
+            353
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract ",
+        "text_level": 1,
+        "bbox": [
+            440,
+            380,
+            515,
+            392
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Classical machine learning often struggles with complex, high-dimensional data. Quantum machine learning offers a potential solution, promising more efficient processing. The quantum convolutional neural network (QCNN), a hybrid algorithm, fits current noisy intermediate-scale quantum hardware. However, its training depends largely on classical computation. Future gate-based quantum computers may realize full quantum advantages. In contrast to QCNNs, quantum autoencoders (QAEs) leverage classical optimization solely for parameter tuning. Data compression and reconstruction are handled entirely within quantum circuits, enabling purely quantum-based feature extraction. This study introduces a novel image-classification approach using QAEs, achieving classification without requiring additional qubits compared with conventional QAE implementations. The quantum circuit structure significantly impacts classification accuracy. Unlike hybrid methods such as QCNN, QAE-based classification emphasizes quantum computation. Our experiments demonstrate high accuracy in a four-class classification task, evaluating various quantum-gate configurations to understand the impact of different parameterized quantum circuit (ansatz) structures on classification performance. An ideal situation in which quantum circuits yield perfect results is assumed, and a numerical simulator of quantum circuit measurements is used. Specifically, noise-free conditions are considered, and simulations are performed using a statevector simulator to model the quantum system with full amplitude precision. Our results reveal that specific ansatz structures achieve superior accuracy. Moreover, the proposed approach achieves performance comparable to that of conventional machine-learning methods while significantly reducing the number of parameters requiring optimization. These findings indicate that QAEs can serve as efficient classification models with fewer ",
+        "bbox": [
+            201,
+            397,
+            752,
+            725
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "aside_text",
+        "text": "arXiv:2502.15254v2 [quant-ph] 27 May 2025 ",
+        "bbox": [
+            21,
+            291,
+            63,
+            741
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "1 ",
+        "bbox": [
+            472,
+            764,
+            482,
+            775
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "parameters and highlight the potential of utilizing quantum circuits for complete end-to-end learning. ",
+        "bbox": [
+            243,
+            87,
+            791,
+            115
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Keywords: Quantum autoencoders, Image classification, Quantum machine Learning, Quantum circuit learning ",
+        "bbox": [
+            243,
+            124,
+            791,
+            149
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            193,
+            386,
+            211
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Quantum machine learning (QML) is an emerging field exploring the application of quantum computers to machine-learning tasks. QML leverages the intrinsic parallelism of quantum computation, offering the potential for more efficient processing of complex data compared to classical machine-learning methods (Biamonte et al., 2017; Tychola et al., 2023). Shor’s algorithm and Grover’s algorithm have demonstrated that quantum computers can efficiently solve problems that require impractical computation time using classical computers (Shor, 1997; Zhang and Ni, 2020). In more advanced applications, approaches have been proposed to replace machine learning algorithms—such as autoencoders, neural networks, reinforcement learning, adversarial learning, and transformers, whose effectiveness has already been confirmed in classical computing experiments—with algorithms to be executed on quantum computers (Romero et al., 2017; Cong et al., 2019; Henderson et al., 2019; Lu et al., 2020; Huang et al., 2021; Song et al., 2024; Cherrat et al., 2024). Several QML studies have shown that the optimization of information from complex feature spaces may improve learning accuracy and minimize the number of parameters compared to classical methods (Adhikary et al., 2020; Chakraborty et al., 2020; Li et al., 2022). Although current noisy intermediate-scale quantum (NISQ) devices are limited by qubit count and high noise, various hybrid quantum-classical approaches, such as quantum circuit learning, have been proposed to enable practical QML applications (Mitarai et al., 2018). A prominent example is the quantum convolutional neural network (QCNN), which integrates gate-based quantum computing with conventional machine-learning models (Cong et al., 2019; Henderson et al., 2019). Classical convolutional neural networks (CNN), widely used in image classification for their ability to extract abstract features through convolution, achieve robust accuracy by learning generalized image representations (Khan et al., 2020). QCNN aims to enhance processing speed and accuracy by replacing classical convolution operations with quantum circuits. However, because only a portion of the convolutional process occurs on a quantum circuit, with the remainder handled by a classical computer, QCNN remains a hybrid algorithm wellsuited to the limitations of NISQ-era hardware. This hybrid approach attempts to capitalize on the benefits of quantum computing while relying on classical processing for robustness (Li et al., 2022; Matic et al., 2022; Hur et al., 2022; Hassan et al., 2024; Senokosov et al., 2024). Critically, the dependence on classical algorithms remains high, as only a fraction of the learning process is performed quantum mechanically. ",
+        "bbox": [
+            201,
+            221,
+            835,
+            690
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "While hybrid methods such as QCNN are pragmatic for current technology, developing approaches where most of the learning process occurs within quantum circuits is also essential. Although such algorithms may not be immediately practical in the ",
+        "bbox": [
+            203,
+            692,
+            833,
+            736
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "2 ",
+        "bbox": [
+            512,
+            764,
+            524,
+            775
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "NISQ era, future advancements in large-scale, gate-based quantum computing promise to unlock the full potential of quantum effects such as superposition and entanglement in machine learning. This could lead to significantly faster learning and greater model expressiveness than classical approaches. A promising avenue for quantum feature learning is the quantum autoencoder (QAE) (Romero et al., 2017). QAEs are generative models that compress input data into fewer qubits and then reconstruct the original information by reversing the trained quantum circuit. While classical optimization is used for parameter tuning in QAE training, data compression and reconstruction are performed entirely within the quantum circuit. This demonstrates the capability of quantum circuits alone to effectively extract essential features. Prior research has primarily employed QAEs for data compression and reconstruction, including applications in data preprocessing, feature transformation, and anomaly detection, all leveraging their compression-reconstruction capabilities (Srikumar et al., 2021; Mangini et al., 2022; Ngairangbam et al., 2022; Sakhnenko et al., 2022; Zhu et al., 2023; Wang et al., 2024). However, to the best of our knowledge, no prior work has demonstrated the application of QAEs to other tasks. ",
+        "bbox": [
+            161,
+            87,
+            793,
+            316
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Therefore, this study proposes a novel approach applying QAEs to image classification, demonstrating that QAEs, as generative models, can perform tasks beyond data compression and reconstruction. In a previous study, we successfully applied nonnegative/binary matrix factorization (NBMF) to image classification, leveraging binary optimization for feature compression (O’Malley et al., 2018; Asaoka and Kudo, 2023). This resulted in faster convergence and higher accuracy compared to other machine-learning methods. Similarly, we anticipate that QAEs will offer several advantages in image classification. In our proposed QAE-based image classification, the label information is incorporated during training. Traditional QAE training optimizes quantum circuit parameters to minimize reconstruction error between input images and their reconstructed outputs. Our approach encodes both image and label information into the quantum circuit and optimizes parameters to minimize the error between the reconstructed output and label information. This allows the trained circuit to predict class labels for unseen test images. Importantly, this method enables image classification without increasing the number of qubits compared to conventional QAE implementations. While parameter optimization uses classical algorithms, the quantum circuit transforms the quantum representation of images and labels. Consequently, the quantum circuit structure significantly influences classification accuracy. Unlike hybrid models such as QCNN, which perform only a portion of the computation quantum mechanically, QAE-based classification emphasizes quantum computation in machine learning. ",
+        "bbox": [
+            161,
+            316,
+            794,
+            615
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "This study experimented with multiple qubit control configurations to investigate the effect of different ansatz structures within the parameterized quantum circuit of the QAE. We demonstrate that specific ansatz structures achieve high classification accuracy and analyze the underlying reasons for their effectiveness. Additionally, we compare the performance of QAE classification with that of other classical machinelearning models and QCNN under identical data conditions. We identify scenarios ",
+        "bbox": [
+            161,
+            615,
+            794,
+            702
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            472,
+            764,
+            482,
+            775
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where QAEs outperform classical approaches and those wherein their learning efficiency is lower, providing insights into the potential advantages of QML. The key contributions of this paper are as follows: ",
+        "bbox": [
+            203,
+            87,
+            830,
+            130
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "list",
+        "sub_type": "text",
+        "list_items": [
+            "1. It proposes the application of QAE to image-classification tasks. ",
+            "2. It identifies effective ansatz structures for QAE-based image classification. ",
+            "3. It demonstrates that QAE-based classification achieves comparable accuracy to classical methods with significantly fewer parameters. "
+        ],
+        "bbox": [
+            216,
+            130,
+            831,
+            186
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "2 Related work ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            202,
+            394,
+            219
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "2.1 Autoencoders ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            231,
+            384,
+            247
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "An autoencoder is a classical generative model designed for dimensionality reduction and reconstruction of input data (Hinton and Salakhutdinov, 2006). It achieves this through an unsupervised neural network. Because the primary goal is input data reconstruction, the output maintains the same dimensionality as the input. This study considers a three-layer autoencoder structure: an input encoder, a latent layer, and an output decoder. The centrally located latent layer has fewer dimensions than the input layer, facilitating data compression. Network parameters are optimized during training to minimize the discrepancy between input and output data, ensuring accurate reconstruction. This training process enables the extraction of essential features within the latent layer, which are crucial for data reconstruction. ",
+        "bbox": [
+            201,
+            255,
+            833,
+            397
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Autoencoders are used in various applications. In anomaly detection, they are trained solely on normal data and detect outliers based on elevated reconstruction errors for abnormal inputs (Gong et al., 2019; Chen et al., 2018). Autoencoder-based anomaly detection has been applied in industrial domains for identifying abnormal conditions, such as system failures or equipment malfunctions (Yu et al., 2024; Harrou et al., 2024). Autoencoders have also been utilized for data processing techniques, such as augmentation, reconstruction, and noise reduction, to improve the performance of machine learning (Wan et al., 2017; Majumdar, 2019; Jiang et al., 2022; Torabi et al., 2023; Akkem et al., 2024). As a machine learning method, autoencoders are used in unsupervised learning to extract features from data. Image classification tasks are solved by training a classifier with the extracted features and class information (Gogoi and Begum, 2017; Luo et al., 2018; Zhou et al., 2019; Sun et al., 2019). ",
+        "bbox": [
+            203,
+            398,
+            835,
+            569
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "2.2 Quantum circuit learning (QCL) ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            583,
+            571,
+            600
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "QCL is a hybrid classical-quantum machine-learning framework (Mitarai et al., 2018). It involves encoding input data into a quantum circuit and employing classical optimization algorithms to iteratively adjust circuit parameters to achieve the desired output. QCL aims to leverage the exponentially large state space of quantum systems for machine learning, potentially solving tasks that are intractable for classical algorithms and demonstrating quantum advantage. Training data with QCL begins by encoding the data into a quantum state, |ψin⟩, through a unitary transformation. Applying a parameterized quantum circuit ansatz, U(θ), to the input state yields the output state $U ( \\pmb \\theta ) | \\psi _ { \\mathrm { i n } } \\rangle$ . In supervised machine-learning scenarios, a cost function is ",
+        "bbox": [
+            201,
+            606,
+            833,
+            736
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            514,
+            764,
+            524,
+            775
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "defined in terms of the measurement results of the output state and the training data. The desired circuit is trained by iteratively optimizing the parameter θ to minimize this cost function. ",
+        "bbox": [
+            161,
+            87,
+            791,
+            129
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Quantum convolutional neural networks (QCNNs) are learning methods utilizing quantum circuit learning (QCL), in which parts of classical CNNs are replaced with parameterized quantum circuits. Initial approaches have been proposed to compute the convolution and pooling operations in classical CNNs using quantum computation (Cong et al., 2019; Hur et al., 2022). However, under the limitations in the scale and stability of quantum computation, many widely adopted methods aim to replace only part of the CNN with quantum computation. Introducing quantum circuits into a portion of the convolutional layers enables extreme reduction of quantum computation, making it suitable for the NISQ era (Henderson et al., 2019; Matic et al., 2022). There are also approaches in which features extracted by quantum convolution are input into classical fully connected networks (Li et al., 2022; Huang et al., 2023; Senokosov et al., 2024). QCNNs have been used to solve image classification tasks on the MNIST dataset, achieving high classification accuracy (Hur et al., 2022; Huang et al., 2023; Senokosov et al., 2024). Furthermore, as more advanced and practical tasks, QCNNs have been applied to medical image analysis, where they have demonstrated high accuracy and reduced computational costs (Matic et al., 2022; Houssein et al., 2022; Hassan et al., 2024; Cherrat et al., 2024). In addition, QCNNs have shown high accuracy in applications such as financial forecasting and attack risk detection, indicating the potential to contribute to solving business challenges (Egger et al., 2020; Thakkar et al., 2024; Song et al., 2024; Xiong et al., 2024). However, it should be noted that these methods achieve high accuracy by increasing dependence on classical machine learning. In approaches that replace part of the CNN with quantum computation, the majority of the learning process is performed by classical machine learning methods. Even in methods where convolution and pooling are fully handled by quantum circuits, classical dimensionality reduction techniques such as PCA or autoencoders are often applied to compress the classical data before feeding it into the quantum circuits (Hur et al., 2022). It is important to recognize that effects other than quantum circuit learning also contribute to achieving high accuracy. ",
+        "bbox": [
+            166,
+            130,
+            793,
+            531
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "2.3 Quantum autoencoders ",
+        "text_level": 1,
+        "bbox": [
+            163,
+            544,
+            440,
+            560
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "A QAE is an algorithm that employs QCL to construct an autoencoder network (Romero et al., 2017). Similar to conventional autoencoders, the goal is to compress and reconstruct the dimensionality of input data. This is achieved by optimizing an ansatz, $U ( \\pmb \\theta )$ , to compress the quantum state of the input and then restore it to a state closely approximating the original input. Figure 1 illustrates the structure of the target quantum circuit. In the input AB system (Figure 1), A corresponds to the latent state, where input information is compressed, and B corresponds to the trash state. Additionally, $B ^ { \\prime }$ corresponds to the reference state, containing the same number of qubits as B. Successful compression and reconstruction are achieved if the input of AB system matches the output of $A B ^ { \\prime }$ system after applying $U ^ { \\dagger } ( { \\pmb \\theta } )$ . This means maximizing the fidelity between the input and output states. The input state of each qubit in the AB system is $| \\psi _ { i } \\rangle$ , and the quantum state of the $B ^ { \\prime }$ system is a . The ",
+        "bbox": [
+            161,
+            567,
+            794,
+            740
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "5 ",
+        "bbox": [
+            472,
+            764,
+            482,
+            775
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "image",
+        "img_path": "images/71634f966e1f224cbd7d5e3e57d40443fc59b2cf828aa31bf3380f6b2751cae1.jpg",
+        "image_caption": [
+            "Fig. 1: Structure of a conventional quantum autoencoder "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            368,
+            87,
+            668,
+            156
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "density operator of the $A B ^ { \\prime }$ system, which includes the output state, is obtained by tracing out system B from the entire system. This can be expressed by the following equation: ",
+        "bbox": [
+            203,
+            204,
+            835,
+            247
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\rho_ {A B ^ {\\prime}} = U _ {A B ^ {\\prime}} ^ {\\dagger} (\\pmb {\\theta}) \\mathrm {T r} _ {B} \\big [ U _ {A B} (\\pmb {\\theta}) \\big [ | \\psi_ {i} \\rangle \\langle \\psi_ {i} | _ {A B} \\otimes | a \\rangle \\langle a | _ {B ^ {\\prime}} \\big ] U _ {A B} ^ {\\dagger} (\\pmb {\\theta}) \\big ] U _ {A B ^ {\\prime}} (\\pmb {\\theta}). \\qquad (1)\n$$",
+        "text_format": "latex",
+        "bbox": [
+            260,
+            260,
+            835,
+            280
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The objective function $C ( \\pmb \\theta )$ , which must be maximized, can be defined as follows: ",
+        "bbox": [
+            203,
+            288,
+            815,
+            305
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "text": "$$\nC (\\boldsymbol {\\theta}) = \\sum_ {i} p _ {i} F \\left(\\left| \\psi_ {i} \\right\\rangle , \\rho_ {A B ^ {\\prime}}\\right), \\tag {2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            415,
+            318,
+            835,
+            347
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "where $p _ { i }$ is the probability that $| \\psi _ { i } \\rangle$ is the output state. However, determining the match between the quantum states of the $A B$ and the $A B ^ { \\prime }$ systems would typically require numerous qubit measurements. A swap test is performed on B and $B ^ { \\prime }$ to address this challenge. The fidelity of the input and output states of the AB system after swapping the quantum states of B and $B ^ { \\prime }$ can be expressed as follows: ",
+        "bbox": [
+            203,
+            360,
+            833,
+            432
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} F \\big (\\left| \\psi_ {i} \\right\\rangle , \\rho_ {A B} \\big) = F \\big (\\left| \\psi_ {i} \\right\\rangle , U _ {A B} ^ {\\dagger} \\operatorname {T r} _ {B ^ {\\prime}} \\left[ U _ {A B ^ {\\prime}} \\left[ \\left| \\psi_ {i} \\right\\rangle \\left\\langle \\psi_ {i} \\right| _ {A B ^ {\\prime}} \\otimes | a \\rangle \\left\\langle a \\right| _ {B} \\right] U _ {A B ^ {\\prime}} ^ {\\dagger} \\right] U _ {A B} \\big) \\\\ = \\left\\langle \\psi_ {i} \\right| U _ {A B} ^ {\\dagger} \\mathrm {T r} _ {B ^ {\\prime}} \\left[ U _ {A B ^ {\\prime}} \\left[ \\left| \\psi_ {i} \\right\\rangle \\left\\langle \\psi_ {i} \\right| _ {A B ^ {\\prime}} \\otimes \\left| a \\right\\rangle \\left\\langle a \\right| _ {B} \\right] U _ {A B ^ {\\prime}} ^ {\\dagger} \\right] U _ {A B} \\left| \\psi_ {i} \\right\\rangle . (3) \\\\ \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            231,
+            444,
+            833,
+            483
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The fidelity of the input and output states of the $A B ^ { \\prime }$ system before the swap can be expressed as follows: ",
+        "bbox": [
+            203,
+            494,
+            833,
+            523
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "text": "$$\nF \\left(U _ {A B ^ {\\prime}} | \\psi_ {i} \\rangle , \\operatorname {T r} _ {B} \\left[ U _ {A B} | \\psi_ {i} \\rangle \\langle \\psi_ {i} | U _ {A B} ^ {\\dagger} \\otimes | a \\rangle \\langle a | _ {B ^ {\\prime}} \\right]\\right). \\tag {4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            337,
+            536,
+            833,
+            555
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "After swapping B and $B ^ { \\prime }$ , the fidelity can be rewritten as follows, demonstrating equivalence with the fidelity of the AB system. ",
+        "bbox": [
+            203,
+            565,
+            833,
+            596
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} F \\left( \\right.U _ {A B} \\left| \\right. \\psi_ {i} \\left. \\right\\rangle , \\operatorname {T r} _ {B ^ {\\prime}} \\left[ \\right. U _ {A B ^ {\\prime}} \\left| \\right. \\psi_ {i} \\left. \\right\\rangle \\langle \\psi_ {i} \\left. \\right| U _ {A B ^ {\\prime}} ^ {\\dagger} \\otimes \\left| \\right. a \\left. \\right\\rangle\\left\\langle \\right. a \\left. \\right| _ {B} \\left. \\right]\\left. \\right) \\\\ = \\left\\langle \\psi_ {i} \\right| U _ {A B} ^ {\\dagger} \\operatorname {T r} _ {B ^ {\\prime}} \\left[ U _ {A B ^ {\\prime}} \\left[ | \\psi_ {i} \\rangle \\left\\langle \\psi_ {i} \\right| _ {A B ^ {\\prime}} \\otimes | a \\rangle \\left\\langle a \\right| _ {B} \\right] U _ {A B ^ {\\prime}} ^ {\\dagger} \\right] U _ {A B} | \\psi_ {i} \\rangle \\\\ = F \\left(\\left| \\psi_ {i} \\right\\rangle , \\rho_ {A B}\\right) \\tag {5} \\\\ \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            287,
+            607,
+            831,
+            664
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Therefore, swapping B and $B ^ { \\prime }$ is equivalent to reconstructing the input. The swap test leverages the agreement between quantum states, which can be determined by measuring a single ancillary qubit, significantly reducing the measurement overhead compared to the pre-swap scenario. ",
+        "bbox": [
+            203,
+            676,
+            833,
+            734
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "6 ",
+        "bbox": [
+            512,
+            765,
+            524,
+            776
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "image",
+        "img_path": "images/a2885f96d7de35f17763a630fb085c1d8122325a1c46b298370fd862102c5da8.jpg",
+        "image_caption": [
+            "Fig. 2: Quantum autoencoder structure after conducting the swap test "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            327,
+            87,
+            630,
+            154
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "images/cfb370a3bf398c10515b8af3f0e0dfe8b75d654123e92a8bc57cb4f17b85a5dc.jpg",
+        "image_caption": [
+            "Fig. 3: Quantum autoencoder circuit for image-classification training. Class information is encoded in $V _ { L } ( y )$ "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            327,
+            204,
+            633,
+            288
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Figure 2 depicts the quantum circuit configured for learning image data with a QAE. Image data are encoded into the quantum state by setting them as parameters in the circuit $V ( { \\pmb x } )$ . The parameter θ of the ansatz $U ( \\pmb \\theta )$ is optimized using a classical algorithm to maximize the agreement between the B and $B ^ { \\prime }$ states. The swap test is introduced to facilitate this. As mentioned previously, the swap test is an algorithm for determining the agreement of two quantum states. An auxiliary qubit is prepared for measurement; if the two quantum states match, the measurement result of the auxiliary qubit will be |0⟩. Consequently, by defining an objective function that minimizes the probability of measuring 1 , the parameter θ is optimized to align the states of B and B′. ",
+        "bbox": [
+            161,
+            349,
+            793,
+            491
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Similar to classical autoencoders, QAEs have also been applied to tasks such as anomaly detection, data compression, and noise reduction (Pepper et al., 2019; 3 Ngairangbam et al., 2022; Sakhnenko et al., 2022; Zhang et al., 2022; Zhu et al., 2023; Mok et al., 2024). For the task related to image data, results in Wang et al. (2024) have shown that efficient compression may be achieved while preserving essential features. In several cases, classification problems have also been addressed. As with approaches using classical autoencoders, the features extracted by QAEs are used for classifying data (Srikumar et al., 2021; Mangini et al., 2022). ",
+        "bbox": [
+            161,
+            492,
+            793,
+            607
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "3 Quantum autoencoders for image classification ",
+        "text_level": 1,
+        "bbox": [
+            161,
+            621,
+            749,
+            640
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "This study proposes a novel quantum circuit for image-classification training using QAEs. Figure 3 provides an overview of the circuit. The circuit $V ( { \\pmb x } )$ for encoding input image data, ansatz circuit $U ( \\pmb \\theta )$ , and swap test are based on the original $\\mathrm { Q A E }$ architecture. To adapt the QAE for image classification, the reference state $B ^ { \\prime }$ is set using the circuit $V _ { L } ( y )$ . Figure 4a illustrates the structure of $V _ { L } ( y )$ . In the $V _ { L } ( y )$ circuit, an RX gate is assigned to each qubit. The parameter for the RX gate corresponds ",
+        "bbox": [
+            161,
+            650,
+            793,
+            737
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            473,
+            764,
+            482,
+            775
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "images/009f24f1959e1d0ae190772f1a1852d6134b89d30c7b9e4a14c5f2191f00f24e.jpg",
+        "image_caption": [
+            "(a) The definition of $V _ { L } ( y )$ "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            314,
+            137,
+            500,
+            164
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "images/bd402804d29911d66da293fb706eefc9561d9cd961fd476cc506fc07e469eab2.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            547,
+            87,
+            727,
+            112
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "images/df152549ffe2b8afe76bc369229c458f8722ec87620b0908bcdda0931b8246c8.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            549,
+            123,
+            727,
+            148
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "images/c531646acf4a3f47ed403cc3ea1780f1ce5c7a490b4195c4dab9408556e1ffd7.jpg",
+        "image_caption": [
+            "(b) $V _ { L }$ which represents the quantum state |101⟩ "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            549,
+            158,
+            727,
+            183
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "images/739fb10bed04b0b2601a7674d62ca5f67d9f927bad7cfcd9058e8e4b90b8cec1.jpg",
+        "image_caption": [
+            "Fig. 4: Circuit diagram for $V _ { L } ( y )$ , used for encoding class information into the reference state $B ^ { \\prime }$ ",
+            "4 Fig. 5: Quantum autoencoder circuit for image-classification prediction "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            369,
+            288,
+            673,
+            338
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "to the rotation angle of the quantum state around the x-axis, thus changing the state of the qubit based on the parameter value. When a qubit is initialized to the state 0 , and the RX gate parameter is set to π, the state flips to |1⟩. This phenomenon is used to represent class information. If $B ^ { \\prime }$ comprises l qubits, there are $2 ^ { l }$ possible quantum states, allowing for assigning up to $2 ^ { l }$ different classes. For example, consider the case where $l = 1$ and the state 0 represents class $y = 0$ , whereas 1 represents class $y = 1$ . If the image data input into $V ( { \\pmb x } )$ belongs to class 0, the state of $V _ { L } ( y = 0 )$ should remain 0 . To achieve this, the RX gate parameter is set to zero, leaving the initial state unchanged. Conversely, if it belongs to class 1, the $V _ { L } ( y = 1 )$ state should be |1⟩. This is achieved by setting the RX gate parameter to π, flipping the initial state. As a more advanced use of the trash state, the multiclass case is considered. When $l = 2$ , up to four classes can be expressed, and when $l = 3 .$ up to eight classes can be expressed by the trash state $B ^ { \\prime }$ . All representable quantum states, ranging from all qubits in the 0 state to all in the 1 state, are sequentially utilized. As in the case of $l = 1$ , when a qubit needs to be flipped to the 1 state, an RX gate is applied. For example, when $l = 3$ , the quantum state 101 represents class 5. To represent class $5 ,$ the RX gate parameters in the first and third qubits of $B ^ { \\prime }$ are set to π. This circuit structure is illustrated in Figure 4b. Under these conditions, parameter optimization learning proceeds similarly to that in previous QAE studies (Romero et al., 2017). The parameters of $U ( \\pmb \\theta )$ are trained such that B encodes class information based on the swap test results between B and $B ^ { \\prime }$ . ",
+        "bbox": [
+            201,
+            387,
+            835,
+            684
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Figure 5 shows the circuit used for classifying images using the trained θ. The parameters of $V ( { \\pmb x } )$ are set using the information from the test image to be classified and the trained parameters are applied to $U ( \\pmb \\theta )$ . The circuit is then measured. Because ",
+        "bbox": [
+            203,
+            686,
+            833,
+            730
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "8 ",
+        "bbox": [
+            512,
+            764,
+            524,
+            775
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "θ has been optimized using the swap test results between B and $B ^ { \\prime }$ as the objective function, the class information of the image is output to B. The class of the test image can be predicted by comparing the qubit measurement results of the quantum state in B with the correspondence between quantum states and class information defined in B′ during training. The predicted result is the class corresponding to the quantum state with the highest probability among the measurement results. In conventional QAE methods, B is in a trash state and unused for tasks such as information recovery. However, the proposed method encodes label information into B, allowing the qubits in B to be effectively used for image classification. ",
+        "bbox": [
+            159,
+            87,
+            793,
+            214
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Existing classification methods using QAE utilize features of data compressed into latent states (Srikumar et al., 2021; Mangini et al., 2022). Since these features are learned unsupervised without being associated with class information, it is necessary to prepare a separate classifier. The proposed method enables classification within the QAE algorithm by performing training that inputs class information into the trash state. This approach constitutes a supervised autoencoder and represents a methodology not found in conventional QAEs or classifications using classical autoencoders. In current approaches to image classification using quantum machine learning, QCNNs are widely employed; however, as described in Section 4.3.3, they heavily depend on classical algorithms. In the proposed method, classical data are encoded into quantum states by quantum circuits, and these quantum states are analyzed through an ansatz. Therefore, the performance of the quantum circuit significantly affects the training performance. Although classical optimization algorithms are used to optimize the parameters of the ansatz, a major distinction from the QCNN approach is that quantum computation is responsible for most of the learning required for classification. ",
+        "bbox": [
+            166,
+            216,
+            794,
+            430
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "4 Experiments ",
+        "text_level": 1,
+        "bbox": [
+            163,
+            445,
+            347,
+            464
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "4.1 Experimental settings ",
+        "text_level": 1,
+        "bbox": [
+            163,
+            474,
+            426,
+            491
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "To validate the proposed image-classification approach, experiments were conducted using three different datasets. The MNIST dataset consists of handwritten digit images. Fashion-MNIST is a dataset in the same format as MNIST, but containing images of clothing items such as T-shirts and trousers (Xiao et al., 2017). Kuzushiji-MNIST (KMNIST), on the other hand, features images of Japanese cursive characters known as Kuzushiji (Clanuwat et al., 2018). In this experiment, the conditions are restricted to grayscale image classification. Color images are more representative of realistic problem settings, and methods such as Multi-Channel Representation for Quantum Image (MCRQI) make it possible to encode them into quantum states (Sun et al., 2011). However, in such cases, the number of qubits required for training increases compared to the grayscale setting. Under current quantum hardware capabilities, it is difficult to perform large-scale quantum computation with stability. Additionally, since this is the initial verification of QAE classification, the experiment aims to observe the results under a small-scale problem setting. In this experiment, subsets were created by randomly selecting images belonging to four classes (0–3) from each dataset. The training set comprised 500 images, whereas the test set comprised ",
+        "bbox": [
+            161,
+            497,
+            793,
+            726
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "9 ",
+        "bbox": [
+            472,
+            764,
+            482,
+            775
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "another 500. The dataset was constructed to contain a nearly equal number of samples for each class, mitigating the risk of class imbalance. ",
+        "bbox": [
+            203,
+            87,
+            830,
+            115
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "In this experiment, amplitude encoding is used as the image encoder $V ( { \\pmb x } )$ (Rath and Date, 2024). Amplitude encoding maps classical data x of dimension $2 ^ { n }$ to the probability amplitudes of the n-qubits quantum state. The datasets used in this experiment, namely the MNIST dataset, the Fashion MNIST dataset, and the KMNIST dataset, are originally distributed in a size of $2 8 \\times 2 8$ . Because the dimension of x must be an integer when calculating $\\log _ { 2 } 2 ^ { n }$ , datasets were resized before encoding. Although maintaining resolution as close as possible is desirable, the image size affects the scale of the AB system. In this experiment, the image size was primarily set to $1 6 \\times 1 6$ , with variations applied in certain cases. Consequently, the AB system comprised $n = 8$ qubits when using amplitude encoding. ",
+        "bbox": [
+            203,
+            116,
+            833,
+            258
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Various effective methods for encoding classical image data into quantum states have been proposed, such as basis encoding, angle encoding, novel enhanced quantum representation (NEQR), and flexible representation of quantum images (FRQI) (Rath and Date, 2024; Zhang et al., 2013; Le et al., 2011). However, these methods require a greater number of qubits compared to amplitude encoding. While FRQI is relatively efficient in terms of qubit usage, its practical implementation remains complex due to the need to execute quantum circuits during the encoding process. Amplitude encoding is sufficient to represent the information in the simple image datasets used in this experiment. ",
+        "bbox": [
+            203,
+            259,
+            835,
+            385
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Given the four-class dataset, four distinct quantum states were necessary for classification; these states required a minimum of two qubits. The trash state B, which encodes class information, was set to l = 3 qubits. This setting allowed for a comparative experiment with an eight-class classification task using a QAE classification circuit of the same structure. Eight-class classification necessitates eight quantum states, representable with a minimum of three qubits. Maintaining the same number of qubits for the trash and reference states in the AB system facilitated this comparison. The remaining $k = n - l$ qubits in AB were used for the latent state A. The reference state B′ had the same number of qubits as B and was, therefore, also set to l qubits. An additional qubit was required for the swap test. Thus, $n + l + 1$ qubits were used in this QAE classification experiment. ",
+        "bbox": [
+            203,
+            387,
+            833,
+            543
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "The classical optimization method constrained optimization by linear approximation (COBYLA) was employed to optimize the parameter θ of the ansatz $U ( \\pmb \\theta )$ . A key characteristic of COBYLA is that it does not require gradient information. Because current quantum hardware is highly susceptible to noise, gradient-based optimization using numerical differentiation can be unstable. COBYLA, being gradient-free, is expected to yield more stable results in QCL (Bonet-Monroig et al., 2023; Pellow-Jarman et al., 2024). However, this experiment utilized a quantum circuit simulator, which is noise-free compared to actual quantum hardware. The proposed method was designed with future implementation on real hardware in mind; therefore, results using COBYLA are presented herein. In this experiment, parameter optimization with COBYLA was primarily performed for 5000 epochs. ",
+        "bbox": [
+            203,
+            544,
+            835,
+            700
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "For qubit measurement during training and testing, the quantum circuit simulator provided by Qiskit was used (Qiskit contributors, 2023). Specifically, we employed the ",
+        "bbox": [
+            203,
+            701,
+            833,
+            730
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            510,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "the statevector simulator, which emulates the theoretical state of a quantum computer, computing the state vector after quantum circuit execution. Qiskit also offers the Qasm simulator, which probabilistically samples measurement results and access to gatebased quantum computers via the cloud. However, given the current state of quantum error correction and hardware, quantum measurements using these methods are highly susceptible to noise-induced errors. This experiment excluded the influence of device noise on computational accuracy, presenting results obtained under ideal conditions as an indicator of the potential of the proposed method. A seed value was set for all processes that would otherwise produce stochastic results, ensuring reproducibility. ",
+        "bbox": [
+            161,
+            87,
+            794,
+            218
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "11 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            776
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "image",
+        "img_path": "images/c62a9abdea8f52c44e32b2bdf68230dc711b62983f5a7eb6460685e44ce08bde.jpg",
+        "image_caption": [
+            "(a) Circuit 1 "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            230,
+            87,
+            416,
+            186
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/60ae8cfa2a75d8dd025d20bbfa235bd31c50db351e6097d0050376949be04af8.jpg",
+        "image_caption": [
+            "(b) Circuit 2 "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            423,
+            90,
+            601,
+            181
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/2a4b208fbcc776990db5f3504fdd9959402a8e2b4fa2a19b70115f05c382ff2d.jpg",
+        "image_caption": [
+            "(c) Circuit 3 "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            611,
+            91,
+            806,
+            185
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/fda45b392abf2cf087b3305991a161593876816319d9caba2564b9b4183dae79.jpg",
+        "image_caption": [
+            "(d) Circuit 4 "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            220,
+            223,
+            826,
+            300
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/67134d17eb465ac828f66995f13587070395feb2a5b0d40809a9204cfbf69406.jpg",
+        "image_caption": [
+            "(e) Circuit 5 "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            220,
+            335,
+            828,
+            420
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/743432450ab60fef5adb54f2561d87f5bde6bf23ef44f1069bb99c21667a545f.jpg",
+        "image_caption": [
+            "(f) Circuit 6 "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            223,
+            451,
+            591,
+            536
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/2e78dea5540d9c8c5c0c8190fa3a38f41c161c7473c83cd505711a14a79a84b7.jpg",
+        "image_caption": [
+            "(g) Circuit 7 ",
+            "Fig. 6: Quantum circuit structures for different parameterized ansatzes (Circuits 1–7). Circuits 1–3 have real-amplitude circuit variations, whereas Circuits 4–7 are based on H • H • previous studies. M represents the number of repetitions in each ansatz. The blank H • RX H • • RX m regions within the circuits indicate positions where arbitrary quantum gates are configured during the experiments "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            603,
+            453,
+            813,
+            537
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "4.2 Ansatz ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            674,
+            317,
+            687
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "The construction of the ansatz U(θ) in the QAE classification circuit primarily employs several types of ansatzes frequently used for training conventional QAEs. Figure 6 illustrates the structure of each ansatz. The blank regions within the circuits indicate ",
+        "bbox": [
+            203,
+            696,
+            833,
+            739
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            510,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "positions where arbitrary quantum gates are configured during the experiments. Each ansatz includes a section that is repeated multiple times, as indicated in the ansatz schematic. The number of repetitions is denoted as M. ",
+        "bbox": [
+            159,
+            87,
+            789,
+            129
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "The first ansatz considered is the real-amplitude circuit, wherein classical information is initially encoded through rotations using RY gates (Sebastianelli et al., 2022). Subsequently, adjacent qubits are entangled via CNOT gates, followed by additional rotations using RY gates to adjust the quantum state. This entanglement sequence with CNOT gates and rotation with RY gates is repeated M times. Several patterns exist for applying entanglement via CNOT gates. One such pattern is the reverse linear pattern, which begins by applying a CNOT gate with the control and target qubits being the second-to-last and last qubits, respectively. The control qubit is then shifted sequentially, one by one, up to the first qubit, with CNOT gates applied at each step. This configuration is presented as Circuit 1 in Figure 6a. Conversely, the linear pattern applies CNOT gates sequentially, with the control qubits starting from the first and moving down to the lower qubits. This configuration is presented as Circuit 2 in Figure 6b. A variation similar to the linear pattern, the circular pattern, adds a CNOT gate to control the first qubit from the last qubit before establishing entanglement among adjacent qubits. This creates a circular connection among qubits, enhancing entanglement, and is shown as Circuit 3 in Figure 6c. The real-amplitude circuit represents a simple circuit structure; its effectiveness in image-classification tasks, along with variations owing to different entanglement patterns, was examined in the experiments. ",
+        "bbox": [
+            166,
+            130,
+            793,
+            400
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Circuits 4 and 5 adopt the ansatz structures proposed in the original QAE. Circuit 4 entangles all possible qubit pairings by applying Controlled-RY gates. The application of Controlled-RY gates to all qubit pairs constitutes one iteration, repeated M times. Figure 6d presents the structure of Circuit 4. Circuit 5 is designed to incorporate all possible controlled rotations for each qubit. Initially, each qubit undergoes a rotation using an RX gate. Subsequently, the first qubit controls all other qubits using Controlled-RY gates. This process is performed sequentially for each qubit in the ansatz, moving from the first to the last. Once the last qubit has completed its control operations, each qubit undergoes another RX rotation, similar to that in the initial step. This entire sequence constitutes one iteration and is repeated M times. The structure of Circuit 5 is presented in Figure 6e. Due to its lengthy configuration, parts of the circuit are omitted in the figure using an ellipsis for clarity. Circuits 4 and 5 have been used in previous research to compress the ground states of the Hubbard model and molecular Hamiltonians (Romero et al., 2017). The present study investigated their applicability for training in image-classification tasks. ",
+        "bbox": [
+            166,
+            401,
+            793,
+            614
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Circuits 6 and 7 are considered effective for classification tasks (Schuld et al., 2020). Figure 6f and 6g presents their structures. They generate strong entanglement between qubits through the arrangement of controlled gates. Input states can be effectively mapped into a high-dimensional Hilbert space, enabling representations that are more distinguishable for classification. However, these circuits are designed to obtain a binary class prediction result by measuring a single qubit. This study verifies whether it may also perform effectively in multiclass classification tasks. ",
+        "bbox": [
+            161,
+            615,
+            793,
+            715
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "13 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            775
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "4.3 Other machine learning methods for comparison ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            85,
+            729,
+            103
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "4.3.1 Nonnegative/binary matrix factorization ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            109,
+            640,
+            124
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "NBMF was originally proposed as a generative model trained using a quantum annealing machine (O’Malley et al., 2018). It is an algorithm that optimizes features necessary for reconstructing the original data by factorizing a matrix into nonnegative real-valued basis and binary coefficient matrices. Optimizing the elements of the binary matrix can be viewed as a combinatorial optimization problem suitable for annealing methods. Previous studies have proposed NBMF as a multiclass image-classification model that takes a matrix comprising image data and corresponding class information as the input (Asaoka and Kudo, 2023). NBMF decomposition of this input yields a basis matrix that extracts features associating the image data with the class information. This matrix enables class prediction for test data. The training process in NBMF for image classification leverages nonnegativity constraints and a binary combinatorial optimization procedure. This allows for effective feature extraction in the early stages of learning, even with small datasets and limited features, resulting in high accuracy. Leveraging quantum optimization to retain only necessary information is expected to further improve accuracy, even with less data. ",
+        "bbox": [
+            201,
+            131,
+            833,
+            344
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Since NBMF can serve as an image classification model that leverages quantum annealing, a comparative experiment was conducted to evaluate its performance against the proposed method, which is based on gate-based quantum circuits. The feature dimension in NBMF is equivalent to the coefficient matrix’s dimension and the number of columns in the basis matrix. This feature dimension can be considered equivalent to the information content in the classical space of the latent state in QAE classification. A comparative experiment was conducted with the feature dimension set to $2 ^ { k } = 3 2$ , decomposing the dataset under conditions identical to those in the QAE classification evaluation. ",
+        "bbox": [
+            201,
+            346,
+            833,
+            472
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Owing to the presence of zero elements in the binary coefficient matrix, NBMF inherently exhibits high sparsity in its trainable parameters. Even in its original formulation, approximately 74% of the parameters are sparse. In addition to this baseline, results were also obtained under experimental conditions designed to more closely align the number of parameters with those used in QAE classification. By introducing a constraint term into the update rule for the binary coefficient matrix, the sparsity was further increased, resulting in a reduction in the total number of trainable parameters. ",
+        "bbox": [
+            203,
+            473,
+            833,
+            574
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "4.3.2 Neural network ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            588,
+            408,
+            602
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In a fully connected neural network (FCNN), neurons are connected between consecutive layers. The network learns features by propagating information from the input to the output layer. Image data are provided as input and transformed through the hidden layer, and the predicted class is output. The network is trained using the multiclass cross-entropy loss between the output layer and the true class labels as the objective function. Parameters are updated to minimize this objective function, thereby minimizing the difference between the FCNN’s output and the actual class labels. ",
+        "bbox": [
+            201,
+            609,
+            831,
+            709
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Because the FCNN can be configured to have the same structure as NBMF by aligning the experimental conditions, it was employed as a comparative method. An ",
+        "bbox": [
+            203,
+            709,
+            831,
+            738
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            510,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "FCNN can be structurally mapped to NBMF’s feature extraction process through a three-layer architecture. The nodes in the hidden layer correspond to the column vectors of the coefficient matrix in NBMF, while the edge weights correspond to the components of the basis matrix. The number of nodes in the FCNN’s hidden layer corresponds to the feature dimension in NBMF, which is equal to the dimension of the coefficient matrix and the number of columns in the basis matrix. ",
+        "bbox": [
+            159,
+            87,
+            789,
+            172
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "As one of the experimental settings, a three-layer FCNN (input, hidden, and output) was used with 2k = 32 nodes in the hidden layer. It was implemented as a simple multilayer perceptron with a single hidden layer, employing the sigmoid function as the activation function. This configuration was chosen to match the dimensionality of extracted features with that used in QAE classification and NBMF. The Adam optimizer was employed for parameter optimization (Kingma and Ba, 2015). ",
+        "bbox": [
+            161,
+            172,
+            793,
+            258
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Inspired by the sparsity of the coefficient matrix in NBMF, additional experiments were conducted using sparse neural networks (SNNs) in which the trainable parameters were sparsified. The structure of the SNN is based on that of the FCNN. Two types of SNNs were employed: one with a sparsity level of 74% to match that of NBMF, and the other configured to match the number of parameters used in QAE classification. ",
+        "bbox": [
+            161,
+            259,
+            794,
+            331
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "4.3.3 Quantum convolutional neural network ",
+        "text_level": 1,
+        "bbox": [
+            163,
+            344,
+            584,
+            360
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "As QCNN is frequently adopted as an approach to image classification in quantum machine learning, it is necessary to compare its performance with the proposed method. However, the problem size that can be realistically executed within a reasonable time using a quantum simulator is limited. In this study, a QCNN architecture was employed in which quantum convolution is applied only to a portion of the network (Henderson et al., 2019; Matic et al., 2022). The implementation leveraged publicly available code (Christorange, 2022). The network comprises a quantum convolutional layer that performs convolution operations via quantum circuits, followed by a classical fully connected layer. In the quantum convolutional layer, image patches are extracted using a 2×2 kernel with a stride of 2. A quantum circuit is then applied to each patch to extract features. The circuit consists of four qubits, where each qubit encodes input values using Hadamard and RY gates. Subsequently, each layer applies controlled-RZ gates between adjacent qubits and local RY gates. Measurements are performed in the Z basis for each qubit, and the expectation values are used as output. A total of 64 four-dimensional outputs obtained from the entire image serve as the quantum feature vector, which is then passed to the fully connected layer. The fully connected layer generates four-class classification outputs via a 32-dimensional hidden layer. The Adam optimizer is used to optimize parameters in both the quantum circuit and the fully connected network. ",
+        "bbox": [
+            161,
+            366,
+            794,
+            636
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Due to the incorporation of convolutional processing, QCNN cannot be evaluated under the same criteria as NBMF and FCNN. Its performance is compared independently with that of QAE classification. Additionally, since QCNN training is time-consuming and convergence was confirmed, the comparison is based on the results obtained after 1000 training epochs. The dataset used in this experiment is identical to that employed in the other experiments. ",
+        "bbox": [
+            161,
+            637,
+            794,
+            722
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "15 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            775
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/1aee9f60b4f49415203dd66b3e010b5f7d24d6e1b74edef35f5d00c8e0301810.jpg",
+        "table_caption": [
+            "Table 1: Performance comparison of various quantum circuit ansatzes (Circuits 1–7) across multiple datasets. Each circuit is characterized by its type of arbitrary quantum gate (RY, RZ, RX, or X), the number of repetitions (M ), and the total number of trainable parameters. Test accuracies are reported for three datasets: MNIST, Fashion MNIST, and KMNIST. The final column provides the average accuracy across these datasets. In the records of accuracy for each column, the highest value is highlighted in bold "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ansatz</td><td>Arbitrary quantum gate</td><td>M</td><td>Parameters</td><td>MNIST</td><td>Fashion MNIST</td><td>KMNIST</td><td>Average</td></tr><tr><td>Circuit 1</td><td>-</td><td>20</td><td>168</td><td>80.6%</td><td>67.2%</td><td>69.6%</td><td>72.5%</td></tr><tr><td>Circuit 2</td><td>-</td><td>20</td><td>168</td><td>87.6%</td><td>58.8%</td><td>69.4%</td><td>71.9%</td></tr><tr><td>Circuit 3</td><td>-</td><td>20</td><td>168</td><td>90.4%</td><td>67.2%</td><td>65.4%</td><td>74.3%</td></tr><tr><td>Circuit 4</td><td>-</td><td>6</td><td>168</td><td>82.0%</td><td>69.6%</td><td>64.8%</td><td>72.1%</td></tr><tr><td>Circuit 5</td><td>RY</td><td>3</td><td>216</td><td>73.6%</td><td>68.2%</td><td>66.8%</td><td>69.5%</td></tr><tr><td>Circuit 5</td><td>X</td><td>11</td><td>176</td><td>24.6%</td><td>25.2%</td><td>16.4%</td><td>22.1%</td></tr><tr><td>Circuit 6</td><td>RZ</td><td>5</td><td>160</td><td>79.6%</td><td>49.8%</td><td>48.4%</td><td>59.3%</td></tr><tr><td>Circuit 6</td><td>RX</td><td>5</td><td>160</td><td>86.2%</td><td>49.6%</td><td>61.2%</td><td>65.7%</td></tr><tr><td>Circuit 6</td><td>X</td><td>10</td><td>160</td><td>75.8%</td><td>67.6%</td><td>68.0%</td><td>70.5%</td></tr><tr><td>Circuit 7</td><td>RZ</td><td>7</td><td>168</td><td>67.4%</td><td>50.4%</td><td>50.4%</td><td>56.1%</td></tr><tr><td>Circuit 7</td><td>RX</td><td>7</td><td>168</td><td>73.6%</td><td>51.2%</td><td>49.8%</td><td>58.2%</td></tr></table>",
+        "bbox": [
+            203,
+            193,
+            833,
+            346
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/478a85e04f03592bf67510ed12c803e16022661667eb5596d318dd99fbd0a631.jpg",
+        "table_caption": [
+            "Table 2: Gate composition analysis of different ansatz structures. Summarization of the number of gates used in each ansatz circuit, categorized by gate type: CNOT gates, rotation gates, and controlled rotation gates "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ansatz</td><td>Arbitrary quantum gate</td><td>M</td><td>CNOT gates</td><td>Rotation gates</td><td>Controlled rotation gates</td><td>Total</td></tr><tr><td>Circuit 1</td><td>-</td><td>20</td><td>140</td><td>168</td><td>0</td><td>308</td></tr><tr><td>Circuit 2</td><td>-</td><td>20</td><td>140</td><td>168</td><td>0</td><td>308</td></tr><tr><td>Circuit 3</td><td>-</td><td>20</td><td>160</td><td>168</td><td>0</td><td>328</td></tr><tr><td>Circuit 4</td><td>-</td><td>6</td><td>0</td><td>0</td><td>168</td><td>168</td></tr><tr><td>Circuit 5</td><td>RY</td><td>3</td><td>0</td><td>48</td><td>168</td><td>216</td></tr><tr><td>Circuit 5</td><td>X</td><td>11</td><td>616</td><td>176</td><td>0</td><td>792</td></tr><tr><td>Circuit 6</td><td>RZ</td><td>5</td><td>0</td><td>80</td><td>80</td><td>160</td></tr><tr><td>Circuit 6</td><td>RX</td><td>5</td><td>0</td><td>80</td><td>80</td><td>160</td></tr><tr><td>Circuit 6</td><td>X</td><td>10</td><td>160</td><td>160</td><td>0</td><td>320</td></tr><tr><td>Circuit 7</td><td>RZ</td><td>7</td><td>0</td><td>112</td><td>56</td><td>168</td></tr><tr><td>Circuit 7</td><td>RX</td><td>7</td><td>0</td><td>112</td><td>56</td><td>168</td></tr></table>",
+        "bbox": [
+            206,
+            419,
+            833,
+            563
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "5 Results ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            576,
+            326,
+            593
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "Image-classification training using the QAE classification quantum circuit was conducted using multiple ansatz configurations. Table 1 presents the ansatz structure for each pattern, along with the classification accuracy when performing class prediction on test images using the optimized parameters obtained during training. Table 2 presents the number of quantum gates included in each ansatz, categorized into CNOT gates, rotation gates, and controlled rotation gates. The rotation and controlled rotation gates contain trainable parameters, with their rotation angles optimized during the learning process. For ansatzes in which arbitrary quantum gates are assigned, the total number of gates is summarized for each type of gate configured in the experiment. ",
+        "bbox": [
+            201,
+            604,
+            833,
+            733
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "16 ",
+        "bbox": [
+            510,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "image",
+        "img_path": "images/10d19c38f21d0eaa05d5a63813b2983b4d9cba65efa207ed1f7b65605bc92092.jpg",
+        "image_caption": [
+            "(a) Circuit 6 with CRX gate "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            201,
+            101,
+            450,
+            235
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "image",
+        "img_path": "images/7e30415c4d3220b8fd82ecab6a2b9f05792280ea002999efeb527a1bd2c71731.jpg",
+        "image_caption": [
+            "(b) Circuit 2 "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            487,
+            101,
+            737,
+            235
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "image",
+        "img_path": "images/d1e4b0b456ecd20b941c8cef0dc2f4e604aa32d37ba3cf5ab7b6c09043a0e911.jpg",
+        "image_caption": [
+            "(c) Circuit 3 ",
+            "Fig. 7: Principal component analysis (PCA) distributions for selected ansatzes: Circuit 6, 2, and 3. The ansatzes are arranged in increasing order of their classification accuracy on the MNIST dataset. Colors represent classes: Class 0 (blue), Class 1 (orange), Class 2 (green), and Class 3 (red). Circles indicate correct classification, whereas crosses indicate misclassification "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            346,
+            278,
+            594,
+            412
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "The trends in classification accuracy differ depending on the dataset. The MNIST dataset achieved the highest classification accuracy among the datasets. Although the ansatz that achieved the highest accuracy varies across the three datasets, Circuit 3 consistently demonstrates the highest average accuracy. To understand this result, we first examine the relationship between the classification results for each ansatz and the characteristics of the test data. Principal component analysis (PCA) was applied to reduce the dimensionality of the test image data to a two-dimensional feature vector representation. This study focuses on the results of the top three ansatz structures that achieved the highest classification accuracy on the MNIST dataset. Figure 7 plots the data points for each ansatz structure, class information, and classification results. The PCA plots are arranged in ascending order of test accuracy, specifically in the order of Circuit 6, 2, and 3. The color of each data point represents its class, as shown in the legend. Circles indicate correct classification, whereas crosses signify misclassification. ",
+        "bbox": [
+            161,
+            550,
+            793,
+            736
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "17 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            775
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "table",
+        "img_path": "images/5e521a0210e1fd24ff5d90782f4852e2eaf7b2ac147091e3abf99d44c79c0ce5.jpg",
+        "table_caption": [
+            "Table 3: Average logarithmic loss and test accuracy of various quantum circuit ansatzes, computed as the mean over three datasets: Digit MNIST, Fashion MNIST, and KMNIST. Each ansatz is defined by its quantum gate type and structure "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ansatz</td><td>Arbitrary quantum gate</td><td>Average test accuracy</td><td>Average logarithmic loss</td></tr><tr><td>Circuit 1</td><td>-</td><td>72.5%</td><td>0.9545</td></tr><tr><td>Circuit 2</td><td>-</td><td>71.9%</td><td>0.9579</td></tr><tr><td>Circuit 3</td><td>-</td><td>74.3%</td><td>0.9558</td></tr><tr><td>Circuit 4</td><td>-</td><td>72.1%</td><td>0.9875</td></tr><tr><td>Circuit 5</td><td>RY</td><td>69.5%</td><td>1.0270</td></tr><tr><td>Circuit 5</td><td>X</td><td>22.1%</td><td>1.4272</td></tr><tr><td>Circuit 6</td><td>RZ</td><td>59.3%</td><td>1.1502</td></tr><tr><td>Circuit 6</td><td>RX</td><td>65.7%</td><td>1.1228</td></tr><tr><td>Circuit 6</td><td>X</td><td>70.5%</td><td>0.9643</td></tr><tr><td>Circuit 7</td><td>RZ</td><td>56.1%</td><td>1.0598</td></tr><tr><td>Circuit 7</td><td>RX</td><td>58.2%</td><td>1.0103</td></tr></table>",
+        "bbox": [
+            203,
+            137,
+            833,
+            319
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "For Circuit $^ { 3 , }$ most misclassified data points lie near the class boundaries in the feature space. In contrast, for other ansatz structures, misclassifications occur not only at class boundaries but also for data points with seemingly distinct class-specific features. ",
+        "bbox": [
+            203,
+            335,
+            831,
+            378
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "In this experiment, class prediction involved inputting quantum states created from test data into the trained ansatz and measuring the qubits of the trash state. The quantum state of the trash state with the highest prediction probability was adopted as the class prediction. The closer this highest probability was to 1, the higher the confidence in the class prediction. Using Circuit 3 as the ansatz structure is expected to yield predictions with higher confidence than other structures. Logarithmic loss is used to quantitatively evaluate this. Logarithmic loss, L, serves as a metric for assessing how well predicted probabilities align with the correct class and is defined by the following equation: ",
+        "bbox": [
+            206,
+            379,
+            831,
+            507
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "equation",
+        "text": "$$\nL = - \\frac {1}{N} \\sum_ {i = 1} ^ {N} \\sum_ {k = 1} ^ {C} y _ {i k} \\log \\left(p _ {i k}\\right), \\tag {6}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            416,
+            521,
+            830,
+            558
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "where N represents the number of test data points and $C$ denotes the number of classes. The variable $y _ { i k }$ is set to 1 if test data i belong to class $k ,$ and zero otherwise. $p _ { i k }$ represents the predicted probability that test data i belong to class k. If the test data belong to class k but are predicted with low confidence, log $p _ { i k }$ takes a large negative value. Frequent occurrences of such cases lead to an increased L. Conversely, correct predictions with high confidence result in a small L. Table 3 presents the average logarithmic loss results obtained from QAE classification across multiple datasets using each ansatz. Although the average logarithmic loss and average accuracy for each ansatz do not exhibit a perfectly corresponding relationship, it can be observed that higher classification accuracy tends to be associated with lower logarithmic loss. ",
+        "bbox": [
+            206,
+            570,
+            831,
+            712
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "To investigate the impact of different quantum-gate combinations, we analyzed the expressibility of each ansatz—a numerical metric quantifying the range of quantum ",
+        "bbox": [
+            203,
+            713,
+            831,
+            741
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "18 ",
+        "bbox": [
+            510,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "states a circuit can represent (Sim et al., 2019; Hubregtsen et al., 2021). In principle, a highly expressive quantum circuit can produce any quantum state with nearly equal probability. This ideal distribution is approximated by the ensemble of Haar-random states, a uniform distribution over all possible quantum states. Therefore, expressibility is evaluated by calculating the Kullback–Leibler (KL) divergence between the distribution of output states generated by the ansatz and that of pure states under the Haar measure. Thus expressibility is denoted by $D _ { K L }$ . Lower $D _ { K L }$ , approaching zero, indicates higher expressibility, meaning the circuit can access a broader region of the Hilbert space. Because prediction confidence varies with the quantum-gate configuration, we hypothesized that the diversity of representable quantum states also differs between ansatzes. Consequently, we measured $D _ { K L }$ of each ansatz. The implementation leveraged publicly available code (Saesun et al., 2021). For this measurement, 2000 patterns of randomly generated, normalized real values were used as input. This input data size matched the image dimensions used in the experiment $( 1 6 \\times 1 6 )$ , and these values were converted to quantum states via amplitude encoding. These encoded states were then input into each ansatz, using the parameters randomly generated from 0 to 2π. $D _ { K L }$ was then calculated from the resulting output states. Table 4 presents the results, comparing $D _ { K L }$ across the different ansatz structures. The circuits achieving higher accuracy tend to exhibit lower $D _ { K L }$ values. ",
+        "bbox": [
+            164,
+            83,
+            796,
+            356
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "table",
+        "img_path": "images/70612abfd86d504cf23b155b1cd6ff84508393fef9dd6bd37e0fad0675d3b374.jpg",
+        "table_caption": [
+            "Table 4: $D _ { K L }$ of different quantum circuit ansatzes. Lower $D _ { K L }$ values indicate a broader range of representable quantum states. Average test accuracy computed as the mean over three datasets: Digit MNIST, Fashion MNIST, and KMNIST "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ansatz</td><td>Arbitrary quantum gate</td><td>Average test accuracy</td><td>DKL</td></tr><tr><td>Circuit 1</td><td>-</td><td>72.5%</td><td>1.417831</td></tr><tr><td>Circuit 2</td><td>-</td><td>71.9%</td><td>1.423058</td></tr><tr><td>Circuit 3</td><td>-</td><td>74.3%</td><td>1.409319</td></tr><tr><td>Circuit 4</td><td>-</td><td>72.1%</td><td>1.679094</td></tr><tr><td>Circuit 5</td><td>RY</td><td>69.5%</td><td>1.545853</td></tr><tr><td>Circuit 5</td><td>X</td><td>22.1%</td><td>1.676397</td></tr><tr><td>Circuit 6</td><td>RZ</td><td>59.3%</td><td>1.513340</td></tr><tr><td>Circuit 6</td><td>RX</td><td>65.7%</td><td>1.532844</td></tr><tr><td>Circuit 6</td><td>X</td><td>70.5%</td><td>1.438955</td></tr><tr><td>Circuit 7</td><td>RZ</td><td>56.1%</td><td>1.466969</td></tr><tr><td>Circuit 7</td><td>RX</td><td>58.2%</td><td>1.479359</td></tr></table>",
+        "bbox": [
+            210,
+            430,
+            744,
+            618
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Table 5 presents the results of applying Circuit 3, which achieved the highest average accuracy in Table 1, to an eight-class image-classification task of the MNIST dataset. The initial conditions for the QAE classification circuit, including the training and test set sizes and configurations, remain unchanged, except that new data from classes four to seven are introduced into the dataset. As expected, the test accuracy decreases significantly. To improve accuracy, three approaches were implemented: ",
+        "bbox": [
+            161,
+            642,
+            794,
+            728
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "19 ",
+        "bbox": [
+            468,
+            764,
+            489,
+            775
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "table",
+        "img_path": "images/daec1dee95e3fa61e06eddc20b937a5d0b180587947b26ca5002d944d223a5d9.jpg",
+        "table_caption": [
+            "Table 5: Test accuracies of QAE classification using Circuit 3 under various experimental conditions—number of classes, repetitions (M ), parameters, training data size, image resolution, and latent qubit count—for classifying the MNIST dataset "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Classes</td><td>M</td><td>Parameters</td><td>Training data</td><td>Image size</td><td>Latent qubits</td><td>Test accuracy</td></tr><tr><td>4</td><td>20</td><td>168</td><td>500</td><td>16 × 16</td><td>5</td><td>90.4%</td></tr><tr><td>8</td><td>20</td><td>168</td><td>500</td><td>16 × 16</td><td>5</td><td>49.4%</td></tr><tr><td>8</td><td>30</td><td>248</td><td>500</td><td>16 × 16</td><td>5</td><td>55.2%</td></tr><tr><td>8</td><td>20</td><td>168</td><td>800</td><td>16 × 16</td><td>5</td><td>63.6%</td></tr><tr><td>8</td><td>20</td><td>210</td><td>500</td><td>32 × 32</td><td>7</td><td>56.4%</td></tr></table>",
+        "bbox": [
+            231,
+            151,
+            808,
+            237
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "list",
+        "sub_type": "text",
+        "list_items": [
+            "1. Increasing the number of ansatz repetitions from 20 to 30, thereby increasing the number of optimized parameters. ",
+            "2. Expanding the training dataset from 500 to 800 images. ",
+            "3. Expanding the input image size from $1 6 \\times 1 6$ to $3 2 \\times 3 2$ . "
+        ],
+        "bbox": [
+            216,
+            258,
+            830,
+            313
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "All modifications improved the test accuracy compared to the initial eight-class results; however, the accuracy did not reach the level achieved in the four-class classification task. In the third modification, the input image resolution was increased, thereby increasing the number of qubits in the latent state. The previous input image size of 16  16 was expanded to $3 2 \\times 3 2$ . Because $3 2 \\times 3 2 = 2 ^ { 1 0 }$ , the number of qubits in the AB quantum system increased to ten. With the trash state remaining at $l = 3$ qubits, the latent state could be expanded to $k = 7$ qubits. This expansion was expected to capture more class-specific features owing to the increased dimensionality of the latent space. However, there was no significant improvement in test accuracy away from expectations. ",
+        "bbox": [
+            203,
+            315,
+            833,
+            456
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Figure 8 depicts the confusion matrix for the eight-class classification task after increasing the number of training samples (resulting in a test accuracy of 63.6%). The vertical axis represents the true class of the test data, whereas the horizontal axis indicates the predicted class output by the QAE classification model. Each cell’s value represents the number of samples belonging to the true class (vertical axis) that were classified as the predicted class (horizontal axis). ",
+        "bbox": [
+            203,
+            457,
+            833,
+            543
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "A comparative analysis of four-class classification was conducted between QAE classification and conventional machine-learning methods, including NBMF, FCNN, and SNN. The same training and test datasets used in the QAE classification experiments were utilized. Parameter optimization was performed for 5000 epochs, similar to that in QAE classification. Table 6 presents the test accuracy for each dataset, achieved by the models trained using each method, corresponding to their respective model sparsity levels and the number of trainable parameters. Given that the dimensionality of the latent space in QAE classification is $k = 5$ , the feature dimension in all other classical methods was set to $2 ^ { k } = 3 2$ . Sparsity refers to the proportion of parameters within a model that are effectively inactive in learning—specifically, those that take a value of zero and thus do not contribute to the optimization process. In the experiments where the number of parameters in NBMF and SNN was adjusted ",
+        "bbox": [
+            206,
+            543,
+            835,
+            715
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_number",
+        "text": "20 ",
+        "bbox": [
+            509,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "image",
+        "img_path": "images/cadaaef4776bc69d1c0d3a3f637e1041d5fadc6f7518a5c3fe46be246a580443.jpg",
+        "image_caption": [
+            "Fig. 8: Confusion matrix for the eight-class classification task of the MNIST dataset, showing predicted versus true labels. The matrix provides a detailed breakdown of correct and misclassified instances, wherein darker blue boxes indicate more samples in that cell. Diagonal elements represent correct classifications, whereas off-diagonal elements indicate misclassifications "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            278,
+            90,
+            687,
+            344
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "to approximate that of QAE classification, sparsity was introduced by imposing constraints on the model. Since the number of parameters was not explicitly specified, the exact sparsity levels and parameter counts varied slightly across experiments. FCNN achieved the highest average test accuracy, consistent with the well-established effectiveness of the fully-connected network in image classification. SNN model, in which the FCNN was made 74% sparse, retained a sufficient number of trainable parameters. Similar to NBMF, achieved a higher average classification accuracy than QAE classification. However, despite having equal feature dimensionality of the latent space, QAE classification significantly reduces the number of trainable parameters compared to both classical methods. The following percentages represent how much the number of parameters was reduced by QAE classification compared to other conventional models: ",
+        "bbox": [
+            159,
+            450,
+            793,
+            620
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "list",
+        "sub_type": "text",
+        "list_items": [
+            "• 98.0% compared to FCNN with 0% sparsity ",
+            "• 92.4% compared to NBMF with 74% sparsity "
+        ],
+        "bbox": [
+            181,
+            621,
+            537,
+            649
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Despite this significant parameter reduction, QAE classification maintains 9.2 and 13.9% average accuracy reductions compared to NBMF and FCNN, respectively. Conversely, when the number of parameters is adjusted to approximate that of QAE classification, the classification accuracy of NBMF and FCNN significantly decreases, further widening the performance gap with QAE classification. ",
+        "bbox": [
+            161,
+            651,
+            791,
+            722
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            468,
+            764,
+            485,
+            775
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "table",
+        "img_path": "images/2e9583dffaa5c345ba771aa2184dff50a567fd3bfd16259014710510e626331c.jpg",
+        "table_caption": [
+            "Table 6: Comparison of different classification methods with respect to parameter count, sparsity, and test accuracy across three datasets: MNIST, Fashion MNIST, and KMNIST. The methods include QAE classification, NBMF, FCNN, and SNN. Sparsity refers to the proportion of parameters within a model that are effectively inactive in learning "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Method</td><td>Sparsity</td><td>Parameters</td><td>MNIST</td><td>Fashion MNIST</td><td>KMNIST</td><td>Average</td></tr><tr><td>QAE classification</td><td>0%</td><td>168</td><td>90.4%</td><td>67.2%</td><td>65.4%</td><td>74.3%</td></tr><tr><td>NBMF</td><td>74%</td><td>2198</td><td>91.0%</td><td>84.2%</td><td>75.4%</td><td>83.5%</td></tr><tr><td>NBMF</td><td>97%</td><td>247</td><td>23.0%</td><td>39.4%</td><td>33.0%</td><td>31.8%</td></tr><tr><td>FCNN</td><td>0%</td><td>8356</td><td>95.6%</td><td>89.4%</td><td>79.6%</td><td>88.2%</td></tr><tr><td>SNN</td><td>74%</td><td>2192</td><td>95.6%</td><td>89.2%</td><td>77.2%</td><td>87.3%</td></tr><tr><td>SNN</td><td>98%</td><td>174</td><td>57.4%</td><td>57.8%</td><td>43.4%</td><td>50.6%</td></tr></table>",
+        "bbox": [
+            203,
+            166,
+            833,
+            272
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "table",
+        "img_path": "images/169846ea4c12d2e50503638318941f1e5444f773bf79f2c9b0ece55d581dd4dd.jpg",
+        "table_caption": [
+            "Table 7: Comparison of different classification methods with respect to the number of parameters and test accuracy across MNIST, Fashion MNIST, and KMNIST datasets. The methods include QAE classification, QCNN, and CNN "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Method</td><td>Parameters</td><td>MNIST</td><td>Fashion MNIST</td><td>KMNIST</td><td>Average</td></tr><tr><td>QAE classification</td><td>168</td><td>80.6%</td><td>64.4%</td><td>53.2%</td><td>66.1%</td></tr><tr><td>QCNN</td><td>8372</td><td>94.8%</td><td>90.0%</td><td>82.2%</td><td>89.0%</td></tr><tr><td>CNN</td><td>8376</td><td>95.0%</td><td>90.2%</td><td>80.6%</td><td>88.6%</td></tr></table>",
+        "bbox": [
+            203,
+            344,
+            833,
+            420
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "The performance of QAE classification is compared with the results of QCNN under identical training and testing data conditions. The network configuration for QCNN is described in Section 4.3.3. Additionally, the results are compared with those of a classical CNN, where convolutional operations are performed using classical computation. For both QCNN and CNN, the results at convergence after 1000 training epochs are used. To ensure a fair comparison, the QAE-based classification results at 1000 epochs are also reported. Table 7 presents the test accuracy of each method on the same dataset. The test accuracy of QCNN and CNN exceeds that of QAE classification. Both methods achieve superior accuracy on the Fashion MNIST and KMNIST datasets, where QAE classification, as well as NBMF and FCNN in Table 6, struggled to achieve high performance. However, despite the introduction of quantum computation in QCNN, its performance shows little to no significant improvement over the classical CNN. This is notable given that CNN already achieves high accuracy, raising questions about the actual benefits of integrating quantum computation in the QCNN architecture. ",
+        "bbox": [
+            201,
+            441,
+            835,
+            653
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "6 Discussion ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            670,
+            361,
+            686
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "To examine the relationship between the ansatz structure and classification performance, we refer to the results presented in Table 1. The classification accuracy varied ",
+        "bbox": [
+            203,
+            699,
+            833,
+            728
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "page_number",
+        "text": "22 ",
+        "bbox": [
+            509,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "depending on the dataset. Among the datasets, MNIST achieved the highest classification accuracy. This dataset contains images of handwritten digits. Despite variations in handwriting styles and stroke thickness, the digits generally exhibit continuous, single-stroke structures. The differences among data samples within the same class are minimal, making this dataset relatively less challenging for image recognition compared to others. In contrast, KMNIST, while also a handwritten dataset, consists of images of traditional Japanese characters. The complexity of the character structures, combined with significant variations in individual writing styles, makes this dataset more challenging for classification than MNIST. Fashion MNIST, on the other hand, features images of fashion items centrally placed within the image. A distinctive characteristic of this dataset is the concentration of pixel values in the central region, differing significantly from the other datasets. ",
+        "bbox": [
+            159,
+            87,
+            793,
+            258
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "Variations in classification accuracy are observed not only due to differences in the datasets but also depending on the structure of the ansatz within the QAE classification circuit. These differences were reflected in the average accuracy values shown in Table 1. Although the number of trainable parameters was nearly identical across different ansatz configurations, their test accuracies differed. This suggests that the feature extraction enabled by the quantum gate configurations directly impacts learning performance. Circuits 1 through 3 consistently achieved high classification accuracy across all datasets and are characterized by a simple structure that entangles qubits using only CNOT gates. Circuits 4 and 5 also achieved relatively high accuracy, utilizing CR gates to generate entanglement. As shown in Table 2, Circuits 6 and 7, which employ CRX or CRZ gates and do not include any CNOT gates, have fewer two-qubit gates overall. These ansatz structures exhibited lower classification performance, suggesting the importance of entangling information between qubits. Nevertheless, the results also indicate that simply using CNOT gates does not guarantee high accuracy. Circuit 5, which applies CNOT gates between all possible pairs of qubits, has significantly more CNOT gates than other ansatzes, as shown in Table 2. Despite this, it exhibited substantially lower classification accuracy compared to the others. This suggests that simply increasing circuit depth by adding CNOT gates is insufficient for improving accuracy. The superior performance of Circuit 3 over Circuit 1 further suggests that the arrangement of quantum gates is also a critical factor. While Circuit 1 arranges CNOT gates sequentially from lower to higher qubits, Circuit 3 first has the lowest qubit control the highest qubit, followed by a downward sequence of CNOT gates. Although these two circuits share an identical number and type of quantum gates, their classification accuracies differed, indicating that the placement of gates must be carefully considered. In addition, the choice of rotation axes within the ansatz is also considered to influence classification performance. Circuit 7, which employs CRX gates, showed low accuracy. In this circuit, RX gates are fixed as single-qubit rotations, and the use of CRX gates results in state transformations constrained to the X-axis, limiting the expressive capability of the circuit. Similarly, although Circuit 5 utilizes CNOT gates, its rotation gates at both ends are also RX, effectively restricting the rotational operations to a single axis. Circuits 6 and 7, which include CRZ gates, also exhibited low classification accuracy. In QAE classification, quantum ",
+        "bbox": [
+            159,
+            259,
+            794,
+            718
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "page_number",
+        "text": "23 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            776
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "states |0⟩ and |1⟩ are assigned to the trash state to represent class information. Applying rotations along the Z-axis to these states may not contribute meaningfully to their transformation, which likely accounts for the reduced performance observed in these circuits. ",
+        "bbox": [
+            203,
+            87,
+            830,
+            143
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "Overall, the results of this experiment demonstrate that the structure of the ansatz has a significant impact on classification accuracy. In particular, Circuits 1 through 3, which employ simple entanglement structures using only CNOT gates, achieved high performance. These findings suggest that the choice of gate types, their arrangement, and the design of rotation axes are critical factors directly affecting model performance. On the other hand, a greater number of gates or increased structural complexity does not necessarily lead to higher accuracy. These results indicate that careful circuit design is essential for performance optimization, and that even simple configurations can achieve sufficient accuracy when properly constructed. ",
+        "bbox": [
+            203,
+            143,
+            833,
+            272
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "The PCA plots in Figure 7 indicate that Circuit 3 achieves better classification performance than the other ansatz structures. For the remaining misclassified data points, the features appear ambiguous and difficult to distinguish, suggesting that such instances would pose challenges not only for QAE classification but also for conventional machine-learning methods. In addition, the comparison of logarithmic loss in Table 3 indicates the impact of the ansatz structure on accuracy. Despite using the same dataset and a nearly identical number of optimized parameters, modifying the combination of quantum gates within the ansatz enhances prediction performance. A lower logarithmic loss suggests higher confidence in the model’s predictions, further highlighting the effectiveness of specific ansatz configurations. The expressibility value in Table 4 also supports the other results. Among the tested ansatz, Circuit 3 exhibited the lowest $D _ { K L }$ value, suggesting it possesses the broadest capacity to represent diverse quantum states. This implies that a wider range of quantum states can be effectively represented using CNOT gates alone, without the need for fine-grained angle adjustments via continuous parameters. However, in the case of Circuit 4, where RY gates were assigned as arbitrary quantum gates, $D _ { K L }$ was higher than that of other circuits, despite achieving relatively high average accuracy. This suggests that lower $D _ { K L }$ does not necessarily lead to improved classification performance. Instances have been observed where classification accuracy plateaus even when $D _ { K I }$ L is low, indicating that there is not always a clear causal relationship between the two (Hubregtsen et al., 2021). Expressibility should not be used as the sole indicator when evaluating quantum circuits, but rather considered as a supplementary metric alongside other experimental results. ",
+        "bbox": [
+            206,
+            273,
+            831,
+            599
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "Extending the QAE classification model from the four-class task (where it achieved 90.4% test accuracy) to an eight-class task resulted in the test accuracy significantly dropping to 49.4%. Initial attempts to improve performance mirrored common strategies in traditional machine learning: increasing the number of training samples, optimized parameters (by increasing ansatz repetitions), and the number of qubits in the latent space. While these modifications led to a modest improvement in test accuracy, they were insufficient to recover the performance levels observed in the fourclass scenario. This suggests that, similar to classical machine learning, expanding the diversity of the feature space is beneficial but not a complete solution. It points to the ",
+        "bbox": [
+            203,
+            601,
+            835,
+            728
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "page_number",
+        "text": "24 ",
+        "bbox": [
+            509,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "need for more sophisticated improvements, such as refining the data encoding method or fundamentally restructuring the ansatz. Analysis of the confusion matrix (Figure 8) reveals that certain digit classes exhibit significantly lower classification accuracy, suggesting a weakness in recognizing specific numerical shapes. This issue likely arises because the QAE classification architecture, as implemented in this experiment, fails to adequately capture the relevant features of these digit shapes. ",
+        "bbox": [
+            159,
+            87,
+            789,
+            173
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "text",
+        "text": "While maintaining the learning mechanism for classification using QAE, two strategies are considered to improve multiclass classification accuracy. The first strategy is to change the encoding method for image data. In this experiment, amplitude encoding was used. Although amplitude encoding can compress O(2n) classical data into O(n) quantum states, it inevitably leads to the loss or inability to represent certain information. Encoding methods such as basis encoding or angle encoding, which represent one pixel of image data with one qubit, can express image information more accurately (Rath and Date, 2024). In addition, NEQR stores color information directly into the basis states, providing more reliable encoding compared to FRQI, which assigns information as amplitudes (Zhang et al., 2013; Le et al., 2011). However, when using these methods, the number of qubits required for encoding becomes impractically large for current quantum computers. For example, to encode the 16  16 images used in this experiment with basis encoding or angle encoding, 256 qubits would be necessary. Considering that the Heron r2 processor, which has the largest number of qubits publicly available from IBM as of 2025, is equipped with 156 qubits, it is clear that this problem size remains difficult to calculate (AbuGhanem, 2025). Another potential avenue for improving digit shape recognition involves leveraging classical preprocessing techniques before QAE classification. For instance, PCA could be used to transform the raw image data into principal components, capturing the dominant features. Encoding these PCA-extracted features, rather than the raw pixel values, into quantum states might allow the QAE to begin with a more structured and informative representation of the digit shapes, potentially boosting classification accuracy. However, this approach introduces a classical preprocessing step, compromising the end-to-end quantum nature of the QAE classification and making it a less desirable solution from the perspective of exploring purely quantum methods. ",
+        "bbox": [
+            166,
+            173,
+            793,
+            529
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "text",
+        "text": "The second strategy is to modify or enhance the qubit interactions within the ansatz—perhaps by exploring different connectivity patterns or incorporating more complex gate sequences—could improve feature extraction for these challenging classes. The relative simplicity of the ansatz structure in Circuit 3, while beneficial for expressibility, might limit its ability to capture the intricate features of certain digit shapes. However, excessively increasing the number of parameters or introducing deeply hierarchical ansatz structures could negatively impact learning efficiency. Therefore, a careful balance between enhancing representational power and maintaining computational tractability is crucial when considering such modifications. A possible method to improve the ansatz design is to apply Quantum Architecture Search (QAS) (Wu et al., 2023; He et al., 2025). QAS is a technique that searches for the optimal combination of quantum gates instead of fixing the gate structure of the ansatz in advance. An objective function is defined, and the search aims to find a combination of quantum gates that maximizes the fulfillment of this objective. For example, in QAE ",
+        "bbox": [
+            161,
+            530,
+            793,
+            731
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "page_number",
+        "text": "25 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            775
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "text",
+        "text": "classification, by setting an objective function derived from classification accuracy, it is possible to search for an ansatz structure effective for high-accuracy classification. One concern with this method is that both the selection of gates and the optimization of ansatz parameters must be performed, leading to a higher computational cost compared to cases where the ansatz structure is predetermined. The use of QAS will be considered by taking into account the trade-off between its contribution to improving accuracy and the resulting computational cost. ",
+        "bbox": [
+            203,
+            87,
+            833,
+            187
+        ],
+        "page_idx": 25
+    },
+    {
+        "type": "text",
+        "text": "As confirmed in Table 6, comparing QAE classification with classical machinelearning methods highlights a key advantage: QAE classification achieves comparable test accuracy while substantially reducing the number of optimized parameters. When utilizing amplitude encoding, the initial 256-dimensional classical image data (16 16 pixels) is compressed into an eight-qubit quantum state (and further down to a fivequbit latent space). In contrast, the conventional methods employed 32-dimensional feature vectors. Despite this significant reduction in both parameters and the dimensionality of the feature representation, QAE classification maintains high accuracy. This strongly suggests that QCL, even with a relatively simple ansatz, can efficiently extract essential features for classification. By transferring the nonlocal observable to a single-qubit observable using entangling gate such as the CNOT gate, QCL efficiently extracts high-order polynomial terms into a measurable form (Mitarai et al., 2018). The tensor product structure of quantum systems readily calculates the product of input states, which may enable learning of complex functions with few parameters. While NBMF, another comparative method, utilizes annealing-based (potentially quantum-accelerated) computation, the results of this study demonstrate the effectiveness of gate-based QCL, indicating the broader potential of quantum algorithms in the machine-learning pipeline. ",
+        "bbox": [
+            206,
+            187,
+            831,
+            444
+        ],
+        "page_idx": 25
+    },
+    {
+        "type": "text",
+        "text": "By implementing two strategies—modifying the encoding method and exploring different ansatz structures—QAE classification is expected to retain substantial potential for improving classification accuracy. These enhancements will become feasible as the number of qubits available on quantum computers increases and as quantum computations become executable within practical timeframes. Moreover, based on the comparative results presented in Table 6, it is anticipated that even with these improvements, the number of parameters to be optimized can be significantly reduced compared to classical machine-learning methods. In the future, where gate-based quantum computers are more advanced, QAE classification may offer distinct advantages over classical approaches for multiclass classification tasks. ",
+        "bbox": [
+            203,
+            444,
+            833,
+            586
+        ],
+        "page_idx": 25
+    },
+    {
+        "type": "text",
+        "text": "However, it is important to acknowledge that the classical FCNN achieves superior test accuracy. From a practical standpoint, FCNNs operating on classical hardware are far more accessible and resource-efficient than QAE classification, which relies on quantum simulators or, ideally, future fault-tolerant quantum computers. Additionally, training convergence is significantly faster with classical methods. Nevertheless, the current computational disadvantage of QCL may diminish with future advancements in gate-based quantum-computing hardware. A year-by-year roadmap projects a steady increase in the number of qubits installed in gate-based quantum computers, envisioning that by around 2033, such systems will be capable of executing circuits with one billion gates using up to 2000 qubits (AbuGhanem, 2025; IBM). If such large-scale ",
+        "bbox": [
+            203,
+            586,
+            835,
+            728
+        ],
+        "page_idx": 25
+    },
+    {
+        "type": "page_number",
+        "text": "26 ",
+        "bbox": [
+            509,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 25
+    },
+    {
+        "type": "text",
+        "text": "hardware is achieved in the future, it will become feasible to measure large quantum circuits within practical computation times. For the proposed method, this development may not only accelerate training but also enhance the encoding performance and resolution of image data. As a result, it may enable the provision of more accurate and practical QAE classification models. In addition, the concept of “quantum-centric supercomputing” has also been proposed (AbuGhanem, 2025; Alexeev et al., 2024). By integrating with high-performance computing systems, it is expected to accelerate the processing speed of quantum computing. Although applications in materials science have been demonstrated, it is also conceivable that this approach may contribute to the acceleration of training and the enhancement of data resolution in the proposed method (Alexeev et al., 2024). ",
+        "bbox": [
+            159,
+            87,
+            793,
+            243
+        ],
+        "page_idx": 26
+    },
+    {
+        "type": "text",
+        "text": "As indicated by the results in Table 7, both QCNN and CNN achieved high classification accuracy not only on the MNIST dataset but also on Fashion MNIST and KMNIST. Compared to other machine learning methods, this demonstrates that convolutional processing effectively captures various data patterns. However, there is little to no performance difference between QCNN and classical CNN. While this could be interpreted as QCNN achieving performance comparable to its classical counterpart, the reality is that, as described in Section 4.3.3, quantum convolutional layers are applied only to a portion of the network. As a result, the benefits of quantum machine learning are minimally realized. Nevertheless, this network design represents the most feasible and practical approach for NISQ era quantum computers. Designing a fully quantum QCNN, where the entire network is constructed using quantum circuits and classification is performed via quantum measurement, would require a large number of qubits and quantum gates (Cong et al., 2019; Hur et al., 2022). In contrast, QAE-based classification offers a significant advantage in that it can perform both feature learning and multi-class classification using a small-scale parameterized quantum circuit, as evidenced by the number of parameters in Table 7. ",
+        "bbox": [
+            166,
+            244,
+            794,
+            474
+        ],
+        "page_idx": 26
+    },
+    {
+        "type": "text",
+        "text": "7 Conclusion ",
+        "text_level": 1,
+        "bbox": [
+            164,
+            488,
+            326,
+            505
+        ],
+        "page_idx": 26
+    },
+    {
+        "type": "text",
+        "text": "This study introduced a novel approach to image classification using QAEs, extending their applicability beyond conventional data compression and reconstruction tasks. The results demonstrated that QAE-based classification achieved high accuracy in a four-class classification task, comparable to conventional machine-learning methods, while substantially reducing the number of parameters requiring optimization. Furthermore, the importance of quantum-gate structure in the ansatz was highlighted—particularly, simple CNOT-based real-amplitude circuits outperformed more complex configurations, indicating that circuit design has a critical impact on learning performance. Compared with classical models, QAE classification retained competitive accuracy with dramatically fewer parameters. While FCNNs and NBMF performed well, QAE classification offered better parameter efficiency. Additionally, unlike QCNNs, which rely heavily on classical components, the proposed method emphasizes fully quantum processing, making it suitable for end-to-end quantum learning. ",
+        "bbox": [
+            161,
+            516,
+            793,
+            717
+        ],
+        "page_idx": 26
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            468,
+            764,
+            487,
+            775
+        ],
+        "page_idx": 26
+    },
+    {
+        "type": "text",
+        "text": "However, the model’s scalability to multiclass classification remains a challenge. As the number of classes increased, accuracy declined significantly, and even with additional training data or deeper circuits, recovery was limited. This suggests that more expressive feature encoding or advanced ansatz structures may be needed. Future improvements could involve alternative encoding methods such as angle encoding, or adaptive circuit design through Quantum Architecture Search (QAS), although these come with greater resource costs. ",
+        "bbox": [
+            203,
+            87,
+            831,
+            186
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "Although current hardware limitations and simulation costs restrict practical implementation, ongoing advances in gate-based quantum computing may unlock the potential of QAE classification for real-world applications. Overall, this study presents an efficient and compact quantum model for image classification, providing a foundation for further research toward scalable and hardware-aware quantum learning systems. ",
+        "bbox": [
+            203,
+            187,
+            831,
+            272
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgements. The authors thank Editage (www.editage.jp) for English language editing. ",
+        "bbox": [
+            203,
+            279,
+            831,
+            309
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "Funding. This study was partially supported by JSPS KAKENHI Grant Number JP23H04499, JP25H01522, and the Ochanomizu University Graduate Student Research Grant for FY2024. ",
+        "bbox": [
+            203,
+            313,
+            831,
+            357
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "Data Availability. The processed datasets generated during the current study are available on GitHub at https://github.com/asaocha/QAE-classifier.git. Raw data and additional materials are available from the corresponding author upon reasonable request. ",
+        "bbox": [
+            203,
+            363,
+            831,
+            420
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "Author contributions. H.A. conceived and conducted the experiments and analyzed the results. K.K. supervised the project. All the authors wrote and reviewed the manuscript. ",
+        "bbox": [
+            203,
+            428,
+            831,
+            470
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "Declarations ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            485,
+            356,
+            502
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "Conflict of interest. The authors declare no competing interests. ",
+        "bbox": [
+            203,
+            513,
+            710,
+            527
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "text",
+        "text": "References ",
+        "text_level": 1,
+        "bbox": [
+            203,
+            542,
+            336,
+            558
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "ref_text",
+        "text": "Alexeev, Y., Amsler, M., Barroca, M.A., Bassini, S., Battelle, T., Camps, D., Casanova, D., Choi, Y.J., Chong, F.T., Chung, C., Codella, C., C´orcoles, A.D., Cruise, J., Di Meglio, A., Duran, I., Eckl, T., Economou, S., Eidenbenz, S., Elmegreen, B., Fare, C., Faro, I., Fern´andez, C.S., Ferreira, R.N.B., Fuji, K., Fuller, B., Gagliardi, L., Galli, G., Glick, J.R., Gobbi, I., Gokhale, P., Puente Gonzalez, S., Greiner, J., Gropp, B., Grossi, M., Gull, E., Healy, B., Hermes, M.R., Huang, B., Humble, T.S., Ito, N., Izmaylov, A.F., Javadi-Abhari, A., Jennewein, D., Jha, S., Jiang, L., Jones, B., Jong, W.A., Jurcevic, P., Kirby, W., Kister, S., Kitagawa, M., Klassen, J., Klymko, K., Koh, K., Kondo, M., Kurkcuoglu, D.M., Kurowski, K., Laino, T., Landfield, R., Leininger, M., Leyton-Ortega, V., Li, A., Lin, M., Liu, J., Lorente, N., Luckow, A., Martiel, S., Martin-Fernandez, F., Martonosi, M., Marvinney, C., Medina, A.C., Merten, D., Mezzacapo, A., Michielsen, K., Mitra, A., Mittal, ",
+        "bbox": [
+            206,
+            570,
+            831,
+            741
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "page_number",
+        "text": "28 ",
+        "bbox": [
+            509,
+            764,
+            527,
+            775
+        ],
+        "page_idx": 27
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "T., Moon, K., Moore, J., Mostame, S., Motta, M., Na, Y.-H., Nam, Y., Narang, P., Ohnishi, Y.-y., Ottaviani, D., Otten, M., Pakin, S., Pascuzzi, V.R., Pednault, E., Piontek, T., Pitera, J., Rall, P., Ravi, G.S., Robertson, N., Rossi, M.A.C., Rydlichowski, P., Ryu, H., Samsonidze, G., Sato, M., Saurabh, N., Sharma, V., Sharma, K., Shin, S., Slessman, G., Steiner, M., Sitdikov, I., Suh, I.-S., Switzer, E.D., Tang, W., Thompson, J., Todo, S., Tran, M.C., Trenev, D., Trott, C., Tseng, H.-H., Tubman, N.M., Tureci, E., Vali˜nas, D.G., Vallecorsa, S., Wever, C., Wojciechowski, K., Wu, X., Yoo, S., Yoshioka, N., Yu, V.W.-z., Yunoki, S., Zhuk, S., Zubarev, D.: Quantum-centric supercomputing for materials science: A perspective on challenges and future directions. Future Generation Computer Systems 160, 666–710 (2024) https://doi.org/10.1016/j.future.2024.04.060 ",
+            "AbuGhanem, M.: Ibm quantum computers: evolution, performance, and future directions. The Journal of Supercomputing 81(5), 687 (2025) https://doi.org/10.1007/ s11227-025-07047-7 ",
+            "Akkem, Y., Biswas, S.K., Varanasi, A.: A comprehensive review of synthetic data generation in smart farming by using variational autoencoder and generative adversarial network. Engineering Applications of Artificial Intelligence 131, 107881 (2024) https://doi.org/10.1016/j.engappai.2024.107881 ",
+            "Adhikary, S., Dangwal, S., Bhowmik, D.: Supervised learning with a quantum classifier using multi-level systems. Quantum Information Processing 19(3), 89 (2020) https: //doi.org/10.1007/s11128-020-2587-9 ",
+            "Asaoka, H., Kudo, K.: Nonnegative/binary matrix factorization for image classification using quantum annealing. Scientific Reports 13(1), 16527 (2023) https://doi.org/ 10.1038/s41598-023-43729-z ",
+            "Bonet-Monroig, X., Wang, H., Vermetten, D., Senjean, B., Moussa, C., B¨ack, T., Dunjko, V., O’Brien, T.E.: Performance comparison of optimization methods on variational quantum algorithms. Physical Review A 107(3), 032407 (2023) https: //doi.org/10.1103/physreva.107.032407 ",
+            "Biamonte, J., Wittek, P., Pancotti, N., Rebentrost, P., Wiebe, N., Lloyd, S.: Quantum machine learning. Nature 549(7671), 195–202 (2017) https://doi.org/10.1038/ nature23474 ",
+            "Clanuwat, T., Bober-Irizar, M., Kitamoto, A., Lamb, A., Yamamoto, K., Ha, D.: Deep Learning for Classical Japanese Literature (2018). https://github.com/rois-codh/ kmnist ",
+            "Cong, I., Choi, S., Lukin, M.D.: Quantum convolutional neural networks. Nature Physics 15(12), 1273–1278 (2019) https://doi.org/10.1038/s41567-019-0648-8 ",
+            "Christorange: QC-CNN: Quantum-Classical Convolutional Neural Network. https:// github.com/christorange/QC-CNN. [Accessed May (2025)] (2022) "
+        ],
+        "bbox": [
+            164,
+            86,
+            794,
+            737
+        ],
+        "page_idx": 28
+    },
+    {
+        "type": "page_number",
+        "text": "29 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            776
+        ],
+        "page_idx": 28
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Cherrat, E.A., Kerenidis, I., Mathur, N., Landman, J., Strahm, M., Li, Y.Y.: Quantum vision transformers. Quantum 8, 1265 (2024) https://doi.org/10.22331/ q-2024-02-22-1265 ",
+            "Chakraborty, S., Shaikh, S.H., Chakrabarti, A., Ghosh, R.: A hybrid quantum feature selection algorithm using a quantum inspired graph theoretic approach. Applied Intelligence 50(6), 1775–1793 (2020) https://doi.org/10.1007/s10489-019-01604-3 ",
+            "Chen, Z., Yeo, C.K., Lee, B.S., Lau, C.T.: Autoencoder-based network anomaly detection. In: 2018 Wireless Telecommunications Symposium (WTS), pp. 1–5 (2018). https://doi.org/10.1109/WTS.2018.8363930 ",
+            "Egger, D.J., Gambella, C., Marecek, J., McFaddin, S., Mevissen, M., Raymond, R., Simonetto, A., Woerner, S., Yndurain, E.: Quantum computing for finance: Stateof-the-art and future prospects. IEEE Transactions on Quantum Engineering 1, 1–24 (2020) https://doi.org/10.1109/tqe.2020.3030314 ",
+            "Gogoi, M., Begum, S.A.: Image classification using deep autoencoders. In: 2017 IEEE International Conference on Computational Intelligence and Computing Research (ICCIC), pp. 1–5 (2017). https://doi.org/10.1109/ICCIC.2017.8524276 ",
+            "Gong, D., Liu, L., Le, V., Saha, B., Mansour, M.R., Venkatesh, S., Hengel, A.v.d.: Memorizing normality to detect anomaly: Memory-augmented deep autoencoder for unsupervised anomaly detection. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) (2019). https://arxiv.org/abs/1904.02639 ",
+            "Houssein, E.H., Abohashima, Z., Elhoseny, M., Mohamed, W.M.: Hybrid quantumclassical convolutional neural network model for covid-19 prediction using chest xray images. Journal of Computational Design and Engineering 9(2), 343–363 (2022) https://doi.org/10.1093/jcde/qwac003 ",
+            "Huang, S.-Y., An, W.-J., Zhang, D.-S., Zhou, N.-R.: Image classification and adversarial robustness analysis based on hybrid quantum–classical convolutional neural network. Optics Communications 533, 129287 (2023) https://doi.org/10.1016/j. optcom.2023.129287 ",
+            "He, Z., Chen, H., Zhou, Y., Situ, H., Li, Y., Li, L.: Self-supervised representation learning for bayesian quantum architecture search. Phys. Rev. A 111, 032403 (2025) https://doi.org/10.1103/PhysRevA.111.032403 ",
+            "Huang, H.-L., Du, Y., Gong, M., Zhao, Y., Wu, Y., Wang, C., Li, S., Liang, F., Lin, J., Xu, Y., Yang, R., Liu, T., Hsieh, M.-H., Deng, H., Rong, H., Peng, C.-Z., Lu, C.- Y., Chen, Y.-A., Tao, D., Zhu, X., Pan, J.-W.: Experimental quantum generative adversarial networks for image generation. Physical Review Applied 16(2), 024051 (2021) https://doi.org/10.1103/physrevapplied.16.024051 ",
+            "Harrou, F., Dairi, A., Taghezouit, B., Khaldi, B., Sun, Y.: Automatic fault detection in "
+        ],
+        "bbox": [
+            206,
+            86,
+            831,
+            733
+        ],
+        "page_idx": 29
+    },
+    {
+        "type": "page_number",
+        "text": "30 ",
+        "bbox": [
+            509,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 29
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "grid-connected photovoltaic systems via variational autoencoder-based monitoring. Energy Conversion and Management 314, 118665 (2024) https://doi.org/10.1016/ j.enconman.2024.118665 ",
+            "Hassan, E., Hossain, M.S., Saber, A., Elmougy, S., Ghoneim, A., Muhammad, G.: A quantum convolutional network and resnet (50)-based classification architecture for the mnist medical dataset. Biomedical Signal Processing and Control 87(7792), 105560 (2024) https://doi.org/10.1016/j.bspc.2023.105560 ",
+            "Hur, T., Kim, L., Park, D.K.: Quantum convolutional neural network for classical data classification. Quantum Machine Intelligence 4(1), 3 (2022) https://doi.org/ 10.1007/s42484-021-00061-x ",
+            "Hubregtsen, T., Pichlmeier, J., Stecher, P., Bertels, K.: Evaluation of parameterized quantum circuits: on the relation between classification accuracy, expressibility, and entangling capability. Quantum Machine Intelligence 3(1), 9 (2021) https://doi.org/ 10.1007/s42484-021-00038-w ",
+            "Hinton, G.E., Salakhutdinov, R.R.: Reducing the dimensionality of data with neural networks. Science 313(5786), 504–507 (2006) https://doi.org/10.1126/science. 1127647 ",
+            "Henderson, M.P., Shakya, S., Pradhan, S., Cook, T.: Quanvolutional neural networks: powering image recognition with quantum circuits. Quantum Machine Intelligence 2(1), 2 (2019) https://doi.org/10.1007/s42484-020-00012-y ",
+            "IBM: IBM Quantum’s technology roadmap. https://www.ibm.com/roadmaps/ quantum.pdf [Accessed April (2025)] ",
+            "Jiang, J., Ren, H., Zhang, M.: A convolutional autoencoder method for simultaneous seismic data reconstruction and denoising. IEEE Geoscience and Remote Sensing Letters 19, 1–5 (2022) https://doi.org/10.1109/LGRS.2021.3073560 ",
+            "Kingma, D.P., Ba, J.: Adam: A method for stochastic optimization. In: Bengio, Y., LeCun, Y. (eds.) 3rd International Conference on Learning Representations, ICLR 2015, San Diego, CA, USA, May 7-9, 2015, Conference Track Proceedings (2015). http://arxiv.org/abs/1412.6980 ",
+            "Khan, A., Sohail, A., Zahoora, U., Qureshi, A.S.: A survey of the recent architectures of deep convolutional neural networks. Artificial Intelligence Review 53(8), 5455–5516 (2020) https://doi.org/10.1007/s10462-020-09825-6 ",
+            "Lu, S., Duan, L.-M., Deng, D.-L.: Quantum adversarial machine learning. Physical Review Research 2(3), 033212 (2020) https://doi.org/10.1103/physrevresearch.2. 033212 "
+        ],
+        "bbox": [
+            163,
+            87,
+            794,
+            703
+        ],
+        "page_idx": 30
+    },
+    {
+        "type": "page_number",
+        "text": "",
+        "bbox": [
+            468,
+            764,
+            485,
+            775
+        ],
+        "page_idx": 30
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Le, P.Q., Dong, F., Hirota, K.: A flexible representation of quantum images for polynomial preparation, image compression, and processing operations. Quantum Information Processing 10(1), 63–84 (2011) https://doi.org/10.1007/s11128-010-0177-y ",
+            "Luo, W., Li, J., Yang, J., Xu, W., Zhang, J.: Convolutional sparse autoencoders for image classification. IEEE Transactions on Neural Networks and Learning Systems 29(7), 3289–3294 (2018) https://doi.org/10.1109/TNNLS.2017.2712793 ",
+            "Li, W., Pengcheng, C., Liu, G.-Z., Tian, Y.-B., Qiu, T.-H., Wang, S.-M.: An image classification algorithm based on hybrid quantum classical convolutional neural network. Quantum Engineering 2022, 5701479 (2022) https://doi.org/10.1155/2022/ 5701479 ",
+            "Majumdar, A.: Blind denoising autoencoder. IEEE Transactions on Neural Networks and Learning Systems 30(1), 312–317 (2019) https://doi.org/10.1109/TNNLS.2018. 2838679 ",
+            "Matic, A., Monnet, M., Lorenz, J., Schachtner, B., Messerer, T.: Quantum-classical convolutional neural networks in radiological image classification. In: 2022 IEEE International Conference on Quantum Computing and Engineering (QCE), pp. 56– 66. IEEE Computer Society, Los Alamitos, CA, USA (2022). https://doi.org/10. 1109/QCE53715.2022.00024 ",
+            "Mangini, S., Marruzzo, A., Piantanida, M., Gerace, D., Bajoni, D., Macchiavello, C.: Quantum neural network autoencoder and classifier applied to an industrial case study. Quantum Machine Intelligence 4(2), 13 (2022) https://doi.org/10.1007/ s42484-022-00070-4 ",
+            "Mitarai, K., Negoro, M., Kitagawa, M., Fujii, K.: Quantum circuit learning. Physical Review A 98(3), 032309 (2018) https://doi.org/10.1103/physreva.98.032309 ",
+            "Mok, W.-K., Zhang, H., Haug, T., Luo, X., Lo, G.-Q., Li, Z., Cai, H., Kim, M.S., Liu, A.Q., Kwek, L.-C.: Rigorous noise reduction with quantum autoencoders. AVS Quantum Science 6(2), 023803 (2024) https://doi.org/10.1116/5.0192456 ",
+            "Ngairangbam, V.S., Spannowsky, M., Takeuchi, M.: Anomaly detection in high-energy physics using a quantum autoencoder. Phys. Rev. D 105(9), 095004 (2022) https: //doi.org/10.1103/PhysRevD.105.095004 ",
+            "O’Malley, D., Vesselinov, V.V., Alexandrov, B.S., Alexandrov, L.B.: Nonnegative/binary matrix factorization with a d-wave quantum annealer. PLOS ONE 13(12), 0206653 (2018) https://doi.org/10.1371/journal.pone.0206653 ",
+            "Pellow-Jarman, R., Pillay, A., Sinayskiy, I., Petruccione, F.: Hybrid genetic optimization for quantum feature map design. Quantum Machine Intelligence 6(2), 45 (2024) https://doi.org/10.1007/s42484-024-00177-w "
+        ],
+        "bbox": [
+            206,
+            86,
+            831,
+            719
+        ],
+        "page_idx": 31
+    },
+    {
+        "type": "page_number",
+        "text": "32 ",
+        "bbox": [
+            509,
+            764,
+            529,
+            775
+        ],
+        "page_idx": 31
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Pepper, A., Tischler, N., Pryde, G.J.: Experimental realization of a quantum autoencoder: The compression of qutrits via machine learning. Physical Review Letters 122(6), 060501 (2019) https://doi.org/10.1103/physrevlett.122.060501 ",
+            "Qiskit contributors: Qiskit: An Open-source Framework for Quantum Computing (2023). https://doi.org/10.5281/zenodo.2573505 ",
+            "Rath, M., Date, H.: Quantum data encoding: a comparative analysis of classicalto-quantum mapping techniques and their impact on machine learning accuracy. EPJ Quantum Technology 11(1), 72 (2024) https://doi.org/10.1140/epjqt/ s40507-024-00285-3 ",
+            "Romero, J., Olson, J.P., Aspuru-Guzik, A.: Quantum autoencoders for efficient compression of quantum data. Quantum Science and Technology 2(4), 045001 (2017) https://doi.org/10.1088/2058-9565/aa8072 ",
+            "Schuld, M., Bocharov, A., Svore, K.M., Wiebe, N.: Circuit-centric quantum classifiers. Physical Review A 101(3), 032308 (2020) https://doi.org/10.1103/physreva.101. 032308 ",
+            "Srikumar, M., Hill, C.D., Hollenberg, L.C.L.: Clustering and enhanced classification using a hybrid quantum autoencoder. Quantum Science and Technology 7(1), 015020 (2021) https://doi.org/10.1088/2058-9565/ac3c53 ",
+            "Shor, P.W.: Polynomial-time algorithms for prime factorization and discrete logarithms on a quantum computer. SIAM Journal on Computing 26(5), 1484–1509 (1997) https://doi.org/10.1137/s0097539795293172 ",
+            "Sim, S., Johnson, P.D., Aspuru-Guzik, A.: Expressibility and entangling capability of parameterized quantum circuits for hybrid quantum-classical algorithms. Advanced Quantum Technologies 2(12), 1900070 (2019) https://doi.org/10.1002/ qute.201900070 ",
+            "Sun, B., Le, P.Q., Iliyasu, A.M., Yan, F., Garcia, J.A., Dong, F., Hirota, K.: A multichannel representation for images on quantum computers using the rgbα color space. In: 2011 IEEE 7th International Symposium on Intelligent Signal Processing, pp. 1–6 (2011). https://doi.org/10.1109/WISP.2011.6051718 ",
+            "Sakhnenko, A., O’Meara, C., Ghosh, K.J.B., Mendl, C.B., Cortiana, G., Bernab´e-Moreno, J.: Hybrid classical-quantum autoencoder for anomaly detection. Quantum Machine Intelligence 4(2), 27 (2022) https://doi.org/10.1007/s42484-022-00075-z ",
+            "Saesun, K., Scholten, T., Mitul, S.A.M.: Quantum Machine Learning Express. https: //github.com/Saesun-Kim/Quantum Machine Learning Express. [Accessed May (2025)] (2021) ",
+            "Senokosov, A., Sedykh, A., Sagingalieva, A., Kyriacou, B., Melnikov, A.: Quantum "
+        ],
+        "bbox": [
+            159,
+            86,
+            796,
+            733
+        ],
+        "page_idx": 32
+    },
+    {
+        "type": "page_number",
+        "text": "33 ",
+        "bbox": [
+            468,
+            764,
+            489,
+            776
+        ],
+        "page_idx": 32
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "machine learning for image classification. Machine Learning: Science and Technology 5(1), 015040 (2024) https://doi.org/10.1088/2632-2153/ad2aef ",
+            "Sun, Y., Xue, B., Zhang, M., Yen, G.G.: A particle swarm optimization-based flexible convolutional autoencoder for image classification. IEEE Transactions on Neural Networks and Learning Systems 30(8), 2295–2309 (2019) https://doi.org/10.1109/ tnnls.2018.2881143 ",
+            "Sebastianelli, A., Zaidenberg, D.A., Spiller, D., Saux, B.L., Ullo, S.L.: On circuit-based hybrid quantum neural networks for remote sensing imagery classification. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing 15, 565–580 (2022) https://doi.org/10.1109/JSTARS.2021.3134785 ",
+            "Song, Z., Zhou, X., Xu, J., Ding, X., Shan, Z.: Recurrent quantum embedding neural network and its application in vulnerability detection. Scientific Reports 14(1), 13642 (2024) https://doi.org/10.1038/s41598-024-63021-y ",
+            "Thakkar, S., Kazdaghli, S., Mathur, N., Kerenidis, I., Ferreira–Martins, A.J., Brito, S.: Improved financial forecasting via quantum machine learning. Quantum Machine Intelligence 6(1), 27 (2024) https://doi.org/10.1007/s42484-024-00157-0 ",
+            "Tychola, K.A., Kalampokas, T., Papakostas, G.A.: Quantum machine learningan overview. Electronics 12(11), 2379 (2023) https://doi.org/10.3390/ electronics12112379 ",
+            "Torabi, H., Mirtaheri, S.L., Greco, S.: Practical autoencoder based anomaly detection by using vector reconstruction error. Cybersecurity 6(1), 1 (2023) https://doi.org/ 10.1186/s42400-022-00134-9 ",
+            "Wang, H., Tan, J., Huang, Y., Zheng, W.: Quantum image compression with autoencoders based on parameterized quantum circuits. Quantum Information Processing 23(2), 41 (2024) https://doi.org/10.1007/s11128-023-04243-3 ",
+            "Wu, W., Yan, G., Lu, X., Pan, K., Yan, J.: QuantumDARTS: Differentiable quantum architecture search for variational quantum algorithms. In: Proceedings of the 40th International Conference on Machine Learning, vol. 202, pp. 37745–37764 (2023). https://proceedings.mlr.press/v202/wu23v.html ",
+            "Wan, Z., Zhang, Y., He, H.: Variational autoencoder based synthetic data generation for imbalanced learning. In: 2017 IEEE Symposium Series on Computational Intelligence (SSCI), pp. 1–7 (2017). https://doi.org/10.1109/SSCI.2017.8285168 ",
+            "Xiong, Q., Fei, Y., Du, Q., Zhao, B., Di, S., Shan, Z.: A modified lightweight quantum convolutional neural network for malicious code detection. Quantum Science and Technology 10(1), 015007 (2024) https://doi.org/10.1088/2058-9565/ad80bd ",
+            "Xiao, H., Rasul, K., Vollgraf, R.: Fashion-MNIST: a Novel Image Dataset "
+        ],
+        "bbox": [
+            206,
+            86,
+            833,
+            731
+        ],
+        "page_idx": 33
+    },
+    {
+        "type": "page_number",
+        "text": "34 ",
+        "bbox": [
+            509,
+            764,
+            529,
+            776
+        ],
+        "page_idx": 33
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "for Benchmarking Machine Learning Algorithms (2017). https://github.com/ zalandoresearch/fashion-mnist ",
+            "Yu, J., Li, S., Liu, X., Li, H., Ma, M., Liu, P., You, L.: Residual squeeze-and-excitation convolutional auto-encoder for fault detection and diagnosis in complex industrial processes. Engineering Applications of Artificial Intelligence 136, 108872 (2024) https://doi.org/10.1016/j.engappai.2024.108872 ",
+            "Zhu, Y., Bai, G., Wang, Y., Li, T., Chiribella, G.: Quantum autoencoders for communication-efficient cloud computing. Quantum Machine Intelligence 5(2), 27 (2023) https://doi.org/10.1007/s42484-023-00112-5 ",
+            "Zhou, P., Han, J., Cheng, G., Zhang, B.: Learning compact and discriminative stacked autoencoder for hyperspectral image classification. IEEE Transactions on Geoscience and Remote Sensing 57(7), 4823–4833 (2019) https://doi.org/10.1109/ TGRS.2019.2893180 ",
+            "Zhang, Y., Lu, K., Gao, Y., Wang, M.: Neqr: a novel enhanced quantum representation of digital images. Quantum Information Processing 12(8), 2833–2860 (2013) https: //doi.org/10.1007/s11128-013-0567-z ",
+            "Zhang, Y., Ni, Q.: Recent advances in quantum machine learning. Quantum Engineering 2(1), 34 (2020) https://doi.org/10.1002/que2.34 ",
+            "Zhang, H., Wan, L., Haug, T., Mok, W.-K., Paesani, S., Shi, Y., Cai, H., Chin, L.K., Karim, M.F., Xiao, L., Luo, X., Gao, F., Dong, B., Assad, S., Kim, M.S., Laing, A., Kwek, L.C., Liu, A.Q.: Resource-efficient high-dimensional subspace teleportation with a quantum autoencoder. Science Advances 8(40), 9783 (2022) https://doi.org/ 10.1126/sciadv.abn9783 "
+        ],
+        "bbox": [
+            163,
+            86,
+            793,
+            486
+        ],
+        "page_idx": 34
+    },
+    {
+        "type": "page_number",
+        "text": "35 ",
+        "bbox": [
+            468,
+            764,
+            487,
+            776
+        ],
+        "page_idx": 34
+    }
+]

@@ -10,3 +10,16 @@ wheels/
 .venv
 .env
 chat_history.json
+
+# Data and Results
+OmniDocBench_data/
+eval_predictions/
+eval_results/
+mineru_output_tmp/
+output/
+data.index
+stats.json
+logs/
+*.db
+*.faiss
+*.index

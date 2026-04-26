@@ -1,37 +1,37 @@
 import requests
-
-OLLAMA_BASE = "http://localhost:46479"
-DEFAULT_MODEL = "llama3"
-
+import json
 
 class OllamaLLM:
-    def __init__(self, model: str = DEFAULT_MODEL):
+    def __init__(self, model="llama3", base_url="http://localhost:46479"):
         self.model = model
-        self.base = OLLAMA_BASE
+        self.base_url = base_url
 
     def generate(self, prompt: str, system: str = "") -> str:
-        messages = []
-        if system:
-            messages.append({"role": "system", "content": system})
-        messages.append({"role": "user", "content": prompt})
-
-        resp = requests.post(
-            f"{self.base}/api/chat",
-            json={"model": self.model, "messages": messages, "stream": False},
-            timeout=120,
-        )
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "system": system,
+            "stream": False
+        }
+        resp = requests.post(f"{self.base_url}/api/generate", json=payload)
         resp.raise_for_status()
-        return resp.json()["message"]["content"].strip()
+        return resp.json().get("response", "")
 
     def embed(self, text: str) -> list[float]:
-        resp = requests.post(
-            f"{self.base}/api/embed",
-            json={"model": self.model, "input": text},
-            timeout=60,
-        )
+        payload = {
+            "model": self.model,
+            "prompt": text
+        }
+        resp = requests.post(f"{self.base_url}/api/embeddings", json=payload)
         resp.raise_for_status()
-        data = resp.json()
-        embeddings = data.get("embeddings") or data.get("embedding")
-        if isinstance(embeddings[0], list):
-            return embeddings[0]
-        return embeddings
+        return resp.json().get("embedding", [])
+
+    def chat(self, messages: list[dict]) -> str:
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "stream": False
+        }
+        resp = requests.post(f"{self.base_url}/api/chat", json=payload)
+        resp.raise_for_status()
+        return resp.json().get("message", {}).get("content", "")

@@ -1,48 +1,38 @@
-"""
-cli.py — Simple CLI for the new RAG core.
-
-Usage:
-    python cli.py index --pdf_dir ./pdf
-    python cli.py ask "What is the main topic?"
-"""
-
 import argparse
+import sys
+from pdf_parser import parse_pdf_to_text
 from retriever import Retriever
-
+from llm_ollama import OllamaLLM
 
 def main():
-    p = argparse.ArgumentParser(description="RAG CLI (Ollama + MinerU)")
-    sub = p.add_subparsers(dest="cmd")
-
-    idx_p = sub.add_parser("index", help="Index PDFs")
-    idx_p.add_argument("--pdf_dir", default="./pdf")
-    idx_p.add_argument("--output_dir", default="./output")
-
-    ask_p = sub.add_parser("ask", help="Ask a question")
-    ask_p.add_argument("query")
-    ask_p.add_argument("--top_k", type=int, default=5)
-    ask_p.add_argument("--model", default="llama3")
-
-    args = p.parse_args()
-
-    if args.cmd == "index":
-        r = Retriever()
-        r.load()
-        r.index_folder(args.pdf_dir, args.output_dir)
-        print(f"Indexed {len(r.chunks)} chunks.")
-
-    elif args.cmd == "ask":
-        r = Retriever(model=args.model)
-        if not r.load():
-            print("No index found. Run: python cli.py index --pdf_dir ./pdf")
-            return
-        result = r.answer(args.query, top_k=args.top_k)
-        print(f"\nAnswer:\n{result['answer']}")
-        print(f"\nSources: {result['sources']}")
-
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command")
+    
+    ingest_parser = subparsers.add_parser("ingest")
+    ingest_parser.add_argument("pdf_path")
+    
+    query_parser = subparsers.add_parser("query")
+    query_parser.add_argument("text")
+    
+    args = parser.parse_args()
+    
+    if args.command == "ingest":
+        text = parse_pdf_to_text(args.pdf_path)
+        retriever = Retriever()
+        retriever.add_texts([text], [args.pdf_path])
+        print(f"Ingested {args.pdf_path}")
+        
+    elif args.command == "query":
+        retriever = Retriever()
+        results = retriever.search(args.text)
+        context = "\n".join([r["text"] for r in results])
+        llm = OllamaLLM()
+        prompt = f"Context: {context}\nQuestion: {args.text}"
+        response = llm.generate(prompt)
+        print(response)
+    
     else:
-        p.print_help()
-
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

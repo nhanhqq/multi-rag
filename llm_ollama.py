@@ -2,7 +2,7 @@ import requests
 import json
 
 class OllamaLLM:
-    def __init__(self, model="llama3", base_url="http://localhost:46479"):
+    def __init__(self, model="llama3", base_url="http://localhost:11434"):
         self.model = model
         self.base_url = base_url
 

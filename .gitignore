@@ -13,13 +13,19 @@ chat_history.json
 
 # Data and Results
 OmniDocBench_data/
+scifact_data/
+scifact_pdfs/
+scifact_mds/
 eval_predictions/
 eval_results/
 mineru_output_tmp/
 output/
-data.index
-stats.json
-logs/
+data.tar.gz
+scifact_results.json
+*.index
+*.pkl
 *.db
 *.faiss
-*.index
+stats.json
+logs/
+chat_history.json

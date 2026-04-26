@@ -4,11 +4,15 @@ import requests
 import re
 import numpy as np
 import faiss
+import pickle
+import torch
 from tqdm import tqdm
 from fpdf import FPDF
 from pathlib import Path
 from nltk.tokenize import sent_tokenize
 import nltk
+from rank_bm25 import BM25Okapi
+from sentence_transformers import SentenceTransformer, CrossEncoder
 
 try:
     nltk.data.find('tokenizers/punkt')
@@ -18,24 +22,36 @@ except LookupError:
 from llm_ollama import OllamaLLM
 
 class Retriever:
-    def __init__(self):
-        self.llm = OllamaLLM()
+    def __init__(self, model_name='all-MiniLM-L6-v2', rerank_name='cross-encoder/ms-marco-MiniLM-L-6-v2'):
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.embed_model = SentenceTransformer(model_name, device=self.device)
+        self.reranker = CrossEncoder(rerank_name, device=self.device)
         self.index = None
+        self.bm25 = None
         self.chunks = []
         self.embeddings = []
         self.index_path = "scifact_data.index"
         self.chunks_path = "scifact_data.pkl"
 
-    def add_texts(self, texts, sources):
-        for i, text in enumerate(texts):
-            emb = self.llm.embed(text)
-            self.chunks.append({"text": text, "source": sources[i]})
-            self.embeddings.append(emb)
+    def _build_bm25(self):
+        if not self.chunks: return
+        tok = [c['text'].lower().split() for c in self.chunks]
+        self.bm25 = BM25Okapi(tok)
+
+    def _build_faiss(self):
+        if not self.embeddings: return
         all_vecs = np.array(self.embeddings).astype('float32')
         self.index = faiss.IndexFlatIP(all_vecs.shape[1])
         self.index.add(all_vecs)
+
+    def add_texts(self, texts, sources):
+        new_embs = self.embed_model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
+        for text, source, emb in zip(texts, sources, new_embs):
+            self.chunks.append({"text": text, "source": source})
+            self.embeddings.append(emb.tolist())
+        self._build_faiss()
+        self._build_bm25()
         with open(self.chunks_path, 'wb') as f:
-            import pickle
             pickle.dump({"chunks": self.chunks, "embeddings": self.embeddings}, f)
         faiss.write_index(self.index, self.index_path)
 
@@ -43,46 +59,76 @@ class Retriever:
         if os.path.exists(self.index_path) and os.path.exists(self.chunks_path):
             self.index = faiss.read_index(self.index_path)
             with open(self.chunks_path, 'rb') as f:
-                import pickle
                 data = pickle.load(f)
                 self.chunks = data["chunks"]
                 self.embeddings = data["embeddings"]
+            self._build_bm25()
             return True
         return False
 
     def mmr(self, candidates, top_k=3, lambda_param=0.5):
         if not candidates or len(candidates) <= top_k: return candidates
-        selected = [candidates[0]]
-        remaining = candidates[1:]
-        while len(selected) < top_k and remaining:
+        candidate_indices = [c['idx'] for c in candidates]
+        all_embs = np.array([self.embeddings[idx] for idx in candidate_indices])
+        selected_indices = [0]
+        remaining_indices = list(range(1, len(candidates)))
+        while len(selected_indices) < top_k and remaining_indices:
             best_score = -float('inf')
             best_idx = -1
-            for i, cand in enumerate(remaining):
-                rel = cand['score']
-                sim = max([np.dot(self.embeddings[cand['idx']], self.embeddings[s['idx']]) for s in selected])
+            for i in remaining_indices:
+                rel = candidates[i]['final_score']
+                sim = np.max([np.dot(all_embs[i], all_embs[idx]) for idx in selected_indices])
                 score = lambda_param * rel - (1 - lambda_param) * sim
                 if score > best_score:
                     best_score = score
                     best_idx = i
-            selected.append(remaining.pop(best_idx))
-        return selected
+            if best_idx != -1:
+                selected_indices.append(best_idx)
+                remaining_indices.remove(best_idx)
+            else: break
+        return [candidates[i] for i in selected_indices]
 
-    def summarize(self, results, query):
+    def summarize(self, results, query, limit=500):
         if not results: return ""
-        parts = []
+        all_sents = []
         for r in results:
-            parts.append(f"[{r['source']}]: {r['text'][:200]}...")
-        return " ".join(parts)
+            all_sents.extend([(s, r['source']) for s in sent_tokenize(r['text'])])
+        if not all_sents: return ""
+        q_emb = self.embed_model.encode([query], normalize_embeddings=True)
+        s_embs = self.embed_model.encode([s[0] for s in all_sents], normalize_embeddings=True)
+        scores = np.dot(s_embs, q_emb.T).flatten()
+        ranked = sorted(zip(all_sents, scores), key=lambda x: x[1], reverse=True)
+        summary, curr_toks = [], 0
+        for (sent, src), score in ranked:
+            toks = len(sent.split())
+            if curr_toks + toks > limit: break
+            summary.append(f"[{src}]: {sent}")
+            curr_toks += toks
+        return " ".join(summary)
 
     def retrieve(self, query, top_k=3):
-        if self.index is None: return [], ""
-        q_emb = np.array([self.llm.embed(query)]).astype('float32')
-        scores, indices = self.index.search(q_emb, 20)
-        candidates = []
-        for s, idx in zip(scores[0], indices[0]):
+        if self.index is None or self.bm25 is None: return [], ""
+        q_vec = self.embed_model.encode([query], normalize_embeddings=True).astype('float32')
+        v_scores, v_indices = self.index.search(q_vec, 60)
+        b_scores = self.bm25.get_scores(query.lower().split())
+        candidate_pool = {}
+        for s, idx in zip(v_scores[0], v_indices[0]):
             if idx != -1:
-                candidates.append({**self.chunks[idx], "score": float(s), "idx": int(idx)})
-        final_set = self.mmr(candidates, top_k=top_k)
+                candidate_pool[int(idx)] = {"v_s": float(s), "b_s": float(b_scores[int(idx)])}
+        candidates = []
+        for idx, s in candidate_pool.items():
+            cand = self.chunks[idx].copy()
+            cand.update({"idx": idx, "v_s": s["v_s"], "b_s": s["b_s"]})
+            candidates.append(cand)
+        if not candidates: return [], ""
+        candidates.sort(key=lambda x: (0.5 * x['v_s']) + (0.5 * (x['b_s']/20.0)), reverse=True)
+        rerank_set = candidates[:40]
+        pairs = [[query, c['text']] for c in rerank_set]
+        r_scores = self.reranker.predict(pairs, show_progress_bar=False)
+        for i, c in enumerate(rerank_set):
+            c["final_score"] = (0.2 * c['v_s']) + (0.2 * (c['b_s']/20.0)) + (0.6 * float(r_scores[i]))
+        rerank_set.sort(key=lambda x: x["final_score"], reverse=True)
+        final_set = self.mmr(rerank_set, top_k=top_k)
         summary = self.summarize(final_set, query)
         return final_set, summary
 

@@ -99,7 +99,6 @@ def main():
         final = fusion_agent.fuse(q, draft, e1, e2, summary, c_text)
         
         try:
-            import json
             clean_final = final.strip()
             if clean_final.startswith("```json"): clean_final = clean_final[7:]
             elif clean_final.startswith("```"): clean_final = clean_final[3:]

@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "claim": "0-dimensional biomaterials show inductive properties.",
+    "predicted": "SUPPORT",
+    "gold": "UNKNOWN",
+    "final_response": "```json\n{\n  \"label\": \"SUPPORT\"\n}\n```"
+  }
+]

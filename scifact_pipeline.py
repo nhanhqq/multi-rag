@@ -1,4 +1,5 @@
 import os
+import argparse
 import json
 import requests
 import re
@@ -56,6 +57,10 @@ def process_corpus(corpus_file, pdf_dir, md_dir):
                 f.write(md_content)
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--top_k", type=int, default=30, help="Number of chunks to retrieve")
+    args = parser.parse_args()
+    
     corpus_file, claims_file = "scifact_data/corpus.jsonl", "scifact_data/claims_dev.jsonl"
     pdf_dir, md_dir = "scifact_pdfs", "scifact_mds"
     process_corpus(corpus_file, pdf_dir, md_dir)
@@ -79,9 +84,13 @@ def main():
     with open(claims_file, "r") as f:
         claims = [json.loads(l) for l in f.readlines()]
         
+    output_dir = "scifact_output"
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, f"results_topk_{args.top_k}.json")
+    
     for claim_obj in tqdm(claims, desc="Evaluating"):
         q = claim_obj["claim"]
-        chunks, summary = rag.retrieve(q, top_k=3)
+        chunks, summary = rag.retrieve(q, top_k=30)
         c_text = " ".join([f"{r['source']} {r['text']}" for r in chunks])
         
         draft = rag_agent.draft(q, summary, c_text)
@@ -89,12 +98,28 @@ def main():
         e2 = agent2.evaluate(q, summary, draft)
         final = fusion_agent.fuse(q, draft, e1, e2, summary, c_text)
         
-        label = "NOT_ENOUGH_INFO"
-        if "SUPPORT" in final.upper(): label = "SUPPORT"
-        elif "REFUTES" in final.upper() or "REFUTE" in final.upper(): label = "REFUTES"
+        try:
+            import json
+            clean_final = final.strip()
+            if clean_final.startswith("```json"): clean_final = clean_final[7:]
+            elif clean_final.startswith("```"): clean_final = clean_final[3:]
+            if clean_final.endswith("```"): clean_final = clean_final[:-3]
+            res_dict = json.loads(clean_final.strip())
+            parsed_label = str(res_dict.get("label", "NOT_ENOUGH_INFO")).upper()
+            if "SUPPORT" in parsed_label: label = "SUPPORT"
+            elif "REFUTE" in parsed_label or "CONTRADICT" in parsed_label: label = "REFUTES"
+            else: label = "NOT_ENOUGH_INFO"
+        except Exception:
+            label = "NOT_ENOUGH_INFO"
         
-        results.append({"id": claim_obj["id"], "predicted": label, "gold": claim_obj.get("evidence_label", "UNKNOWN")})
-        with open("scifact_results.json", "w") as f: json.dump(results, f, indent=2)
+        results.append({
+            "id": claim_obj["id"],
+            "claim": q,
+            "predicted": label,
+            "gold": claim_obj.get("evidence_label", "UNKNOWN"),
+            "final_response": final
+        })
+        with open(output_file, "w") as f: json.dump(results, f, indent=2)
 
 if __name__ == "__main__":
     main()

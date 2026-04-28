@@ -22,7 +22,7 @@ except LookupError:
     nltk.download('punkt_tab')
 
 class Retriever:
-    def __init__(self, model_name='all-MiniLM-L6-v2', rerank_name='cross-encoder/ms-marco-MiniLM-L-6-v2', device=None):
+    def __init__(self, model_name='allenai/specter2_base', rerank_name='cross-encoder/ms-marco-MiniLM-L-6-v2', device=None):
         if device is None:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
@@ -279,10 +279,9 @@ class Retriever:
         for i, c in enumerate(rerank_set):
             c["final_score"] = (0.2 * c['v_s']) + (0.2 * (c['b_s']/20.0)) + (0.6 * float(r_scores[i]))
         rerank_set.sort(key=lambda x: x["final_score"], reverse=True)
-        if not rerank_set or rerank_set[0]["final_score"] < threshold: return [], ""
         final_set = self.mmr(rerank_set, top_k=top_k)
         for c in final_set:
-            c['text'] = self._clean_text(self.compress_context(c['text'], c['id'], query_emb_tensor))
+            c['text'] = self._clean_text(c['text'])
         summary_str = self.summarize(final_set, query, token_limit=500)
         return final_set, summary_str
 

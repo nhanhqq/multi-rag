@@ -3,7 +3,7 @@ import json
 import re
 
 class LLM:
-    def __init__(self, model="qwen3.5:0.8b", base_url="http://localhost:11434"):
+    def __init__(self, model="llama3:8b", base_url="http://localhost:11434"):
         self.model = model
         self.base_url = base_url
 

@@ -23,7 +23,7 @@ except LookupError:
     nltk.download('punkt_tab')
 
 class Retriever:
-    def __init__(self, model_name='allenai/specter2_base', rerank_name='cross-encoder/ms-marco-MiniLM-L-6-v2', device=None):
+    def __init__(self, model_name='allenai/specter2_base', rerank_name='cross-encoder/ms-marco-MiniLM-L-6-v2', device=None, index_file="data.index", data_file="data.pkl"):
         if device is None:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
@@ -36,8 +36,8 @@ class Retriever:
         self.chunks = []
         self.embeddings_cache = []
         
-        self.INDEX_FILE = "data.index"
-        self.DATA_FILE = "data.pkl"
+        self.INDEX_FILE = index_file
+        self.DATA_FILE = data_file
 
     def _clean_text(self, text):
         text = str(text)

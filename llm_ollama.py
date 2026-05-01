@@ -1,41 +1,29 @@
 import requests
 import json
+import re
 
-class OllamaLLM:
-    def __init__(self, model="gemma4:e4b", base_url="http://localhost:11434"):
+class LLM:
+    def __init__(self, model="deepseek-v4-flash:cloud", base_url="http://localhost:11434"):
         self.model = model
         self.base_url = base_url
 
-    def generate(self, prompt: str, system: str = "") -> str:
-        messages = []
-        if system:
-            messages.append({"role": "system", "content": system})
-        messages.append({"role": "user", "content": prompt})
+    def generate(self, prompt, system_prompt=""):
+        url = f"{self.base_url}/api/generate"
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "system": system_prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0
+            }
+        }
         
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "stream": False
-        }
-        resp = requests.post(f"{self.base_url}/api/chat", json=payload)
-        resp.raise_for_status()
-        return resp.json().get("message", {}).get("content", "")
-
-    def embed(self, text: str) -> list[float]:
-        payload = {
-            "model": self.model,
-            "prompt": text
-        }
-        resp = requests.post(f"{self.base_url}/api/embeddings", json=payload)
-        resp.raise_for_status()
-        return resp.json().get("embedding", [])
-
-    def chat(self, messages: list[dict]) -> str:
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "stream": False
-        }
-        resp = requests.post(f"{self.base_url}/api/chat", json=payload)
-        resp.raise_for_status()
-        return resp.json().get("message", {}).get("content", "")
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        output = response.json().get("response", "")
+        
+        output = re.sub(r'<think>.*?</think>', '', output, flags=re.DOTALL)
+        output = output.replace('\n', ' ')
+        output = "".join(c for c in output if c.isprintable() or c.isspace())
+        return re.sub(r'\s+', ' ', output).strip()

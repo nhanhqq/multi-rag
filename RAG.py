@@ -13,12 +13,15 @@ import docx2txt
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer, CrossEncoder, util
 from nltk.tokenize import sent_tokenize
+from tqdm import tqdm
+
 try:
     nltk.data.find('tokenizers/punkt')
     nltk.data.find('tokenizers/punkt_tab')
 except LookupError:
     nltk.download('punkt')
     nltk.download('punkt_tab')
+
 class Retriever:
     def __init__(self, model_name='allenai/specter2_base', rerank_name='cross-encoder/ms-marco-MiniLM-L-6-v2', device=None):
         if device is None:
@@ -26,7 +29,6 @@ class Retriever:
         else:
             self.device = device
             
-        print(f"Initializing Retriever on {self.device}...")
         self.embed_model = SentenceTransformer(model_name, device=self.device)
         self.reranker = CrossEncoder(rerank_name, device=self.device)
         self.index = None
@@ -36,12 +38,14 @@ class Retriever:
         
         self.INDEX_FILE = "data.index"
         self.DATA_FILE = "data.pkl"
+
     def _clean_text(self, text):
         text = str(text)
         text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
         text = re.sub(r'[^\w\s\.\,\?\!\:\-\%\(\)]', ' ', text)
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
+
     def chunk_text(self, text, max_tokens=350):
         sentences = sent_tokenize(text)
         chunks, current_chunk, current_length = [], [], 0
@@ -55,12 +59,14 @@ class Retriever:
         if current_chunk:
             chunks.append(" ".join(current_chunk))
         return chunks
+
     def _build_bm25(self):
         if not self.chunks:
             self.bm25 = None
             return
         tokenized_corpus = [c['text'].lower().split() for c in self.chunks]
         self.bm25 = BM25Okapi(tokenized_corpus)
+
     def _build_faiss(self):
         if not self.embeddings_cache:
             self.index = None
@@ -69,12 +75,13 @@ class Retriever:
         dim = all_vecs.shape[1]
         self.index = faiss.IndexFlatIP(dim)
         self.index.add(all_vecs)
+
     def save(self):
         if self.index:
             faiss.write_index(self.index, self.INDEX_FILE)
             with open(self.DATA_FILE, 'wb') as f:
                 pickle.dump({"chunks": self.chunks, "embeddings": self.embeddings_cache}, f)
-            print(f"Index values saved to {self.INDEX_FILE}") 
+
     def load(self):
         if os.path.exists(self.INDEX_FILE) and os.path.exists(self.DATA_FILE):
             self.index = faiss.read_index(self.INDEX_FILE)
@@ -83,12 +90,11 @@ class Retriever:
                 self.chunks = data["chunks"]
                 self.embeddings_cache = data["embeddings"]
             self._build_bm25()
-            print("Loaded index from disk.")
             return True
         return False
+
     def sync(self, folder_path_or_chunks="./pdf"):
         if isinstance(folder_path_or_chunks, list):
-            print(f"Indexing new chunks from loader...")
             self.chunks = []
             self.embeddings_cache = []
             for c in folder_path_or_chunks:
@@ -101,28 +107,31 @@ class Retriever:
                 self._build_bm25()
                 self.save()
             return
+
         folder_path = folder_path_or_chunks
         if not os.path.exists(folder_path): 
             os.makedirs(folder_path)
-            print(f"Created {folder_path} folder.")
             return
+
         IGNORED_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.mp4', '.zip', '.rar', '.exe', '.pkl', '.index', '.db', '.sqlite', '.pyc', '.DS_Store')
         current_files = {f for f in os.listdir(folder_path) if not f.lower().endswith(IGNORED_EXTENSIONS)}
         indexed_files = {c['source'] for c in self.chunks}
         to_delete = indexed_files - current_files
         to_add = current_files - indexed_files
+
         if not to_delete and not to_add and self.index:
             return
+
         needs_rebuild = False
         if to_delete:
-            print(f"Removing old files: {to_delete}")
             indices = [i for i, c in enumerate(self.chunks) if c['source'] not in to_delete]
             self.chunks = [self.chunks[i] for i in indices]
             self.embeddings_cache = [self.embeddings_cache[i] for i in indices]
             needs_rebuild = True
+
         if to_add:
-            print(f"Indexing new files: {to_add}")
-            for file in to_add:
+            print(f"Indexing {len(to_add)} new files...")
+            for file in tqdm(to_add, desc="Indexing"):
                 path = os.path.join(folder_path, file)
                 text = ""
                 try:
@@ -145,6 +154,7 @@ class Retriever:
                                 text = f.read()
                         except UnicodeDecodeError:
                             continue
+
                     if text.strip():
                         file_chunks = self.chunk_text(text)
                         if file_chunks:
@@ -155,10 +165,12 @@ class Retriever:
                             needs_rebuild = True
                 except Exception as e:
                     print(f"Error processing {file}: {e}")
+
         if needs_rebuild and self.embeddings_cache:
             self._build_faiss()
             self._build_bm25()
             self.save()
+
     def mmr(self, candidates, top_k=5, lambda_param=0.45):
         if not candidates: return []
         if len(candidates) <= top_k: return candidates
@@ -187,6 +199,7 @@ class Retriever:
                 remaining_indices.remove(best_idx_in_remaining)
             else: break
         return [candidates[i] for i in selected_indices]
+
     def compress_context(self, text, chunk_id, query_emb, max_sents=4):
         if len(text.split()) < 60: return text
         sentences = sent_tokenize(text)
@@ -198,6 +211,7 @@ class Retriever:
         sentence_to_idx = {sent: i for i, sent in enumerate(sentences)}
         top_sentences.sort(key=lambda x: sentence_to_idx[x[0]])
         return " ".join([s[0] for s in top_sentences])
+
     def summarize(self, results, query, token_limit=500):
         if not results: return ""
         all_sentences, sentence_metadata = [], []
@@ -220,6 +234,7 @@ class Retriever:
             else: summary_parts.append(sent)
             current_tokens += tokens
         return self._clean_text(" ".join(summary_parts))
+
     def retrieve(self, query, top_k=5, threshold=-4.5):
         if self.index is None or self.bm25 is None: return [], ""
         sub_queries = [query]
@@ -228,7 +243,6 @@ class Retriever:
             sub_queries.extend([p.strip() for p in parts if len(p.strip()) > 3])
         candidate_pool = {}
         q_vecs = self.embed_model.encode(sub_queries, normalize_embeddings=True, show_progress_bar=False)
-        query_emb_tensor = torch.from_numpy(q_vecs[0]).to(self.device).to(torch.float32)
         for i, q_text in enumerate(sub_queries):
             q_vec = q_vecs[i].reshape(1, -1).astype('float32')
             v_scores, v_indices = self.index.search(q_vec, 60)
@@ -252,48 +266,15 @@ class Retriever:
                     candidate_pool[cid] = {**cand, "v_s": 0.0, "b_s": float(b_scores[idx])}
         candidates = list(candidate_pool.values())
         if not candidates: return [], ""
-        candidates.sort(key=lambda x: (0.3 * x['v_s']) + (0.7 * (x['b_s']/20.0)), reverse=True)
-        rerank_set = candidates[:50]
+        candidates.sort(key=lambda x: (0.4 * x['v_s']) + (0.6 * (x['b_s']/20.0)), reverse=True)
+        rerank_set = candidates[:100]
         pairs = [[query, c['text']] for c in rerank_set]
         r_scores = self.reranker.predict(pairs, show_progress_bar=False)
         for i, c in enumerate(rerank_set):
-            c["final_score"] = (0.1 * c['v_s']) + (0.2 * (c['b_s']/20.0)) + (0.7 * float(r_scores[i]))
+            c["final_score"] = (0.2 * c['v_s']) + (0.2 * (c['b_s']/20.0)) + (0.6 * float(r_scores[i]))
         rerank_set.sort(key=lambda x: x["final_score"], reverse=True)
         final_set = self.mmr(rerank_set, top_k=top_k)
         for c in final_set:
             c['text'] = self._clean_text(c['text'])
         summary_str = self.summarize(final_set, query, token_limit=500)
         return final_set, summary_str
-def main():
-    RAG = Retriever()
-    if not RAG.load(): RAG.sync("./pdf")
-    print("\n--- RAG Ready ---")
-    while True:
-        try:
-            user_q = input("\nSearch: ").strip()
-            if not user_q: continue
-            if user_q.lower() in ['exit', 'quit']: break
-            start = time.time()
-            res, summary = RAG.retrieve(user_q)
-            end = time.time()
-            if not res:
-                print("No relevant information found.")
-                continue
-            print(f"\n--- Consolidated Summary ---")
-            print(summary)
-            print(f"\n--- Top Source Chunks ({end-start:.2f}s) ---")
-            for i, r in enumerate(res):
-                print(f"[{i+1}] Source: {r['source']} | Score: {r['final_score']:.3f}\nContent: {r['text']}\n")
-        except KeyboardInterrupt: break
-        except Exception as e: print(f"Error: {e}")
-from llama_index.core.retrievers import BaseRetriever
-from llama_index.core.schema import NodeWithScore, TextNode
-class LlamaIndexWrapper(BaseRetriever):
-    def __init__(self, custom_retriever_instance):
-        self.retriever = custom_retriever_instance
-        super().__init__()
-    def _retrieve(self, query_bundle):
-        results, summary = self.retriever.retrieve(query_bundle.query_str)
-        return [NodeWithScore(node=TextNode(text=r['text'], metadata={"src": r['source']}), score=r.get('final_score', 1.0)) for r in results]
-if __name__ == "__main__":
-    main()

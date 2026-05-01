@@ -29,3 +29,7 @@ scifact_results.json
 stats.json
 logs/
 chat_history.json
+data/
+eval_results_sailor.csv
+dataset_sample.txt
+context_type.txt

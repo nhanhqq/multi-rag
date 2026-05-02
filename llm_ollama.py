@@ -24,6 +24,7 @@ class LLM:
         output = response.json().get("response", "")
         
         output = re.sub(r'<think>.*?</think>', '', output, flags=re.DOTALL)
-        output = output.replace('\n', ' ')
+        # Bỏ thay thế \n để giữ lại markdown và cấu trúc đoạn văn
+        # output = output.replace('\n', ' ')
         output = "".join(c for c in output if c.isprintable() or c.isspace())
-        return re.sub(r'\s+', ' ', output).strip()
+        return re.sub(r' +', ' ', output).strip()

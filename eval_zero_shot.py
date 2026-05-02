@@ -15,8 +15,8 @@ def process_item_zero_shot(item, llm):
     question = item['question']
     ground_truth = item['answer']
     
-    # Zero-shot Prompt
-    prompt = f"Câu hỏi: {question}"
+    # Zero-shot Prompt - Ép trả lời tiếng Việt
+    prompt = f"Hãy trả lời câu hỏi sau đây bằng tiếng Việt:\nCâu hỏi: {question}\nTrả lời:"
     
     # Generate Answer
     answer = llm.generate(prompt)

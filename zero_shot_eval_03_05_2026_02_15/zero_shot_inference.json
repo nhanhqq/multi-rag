@@ -1,0 +1,56 @@
+[
+  {
+    "question": "Minh Tú đã đạt được thành tích gì trong chương trình Asia’ Next Top Model mùa thứ 5?",
+    "answer": "Minh Tú đã giành được danh hiệu Á quân (Runner-up) trong chương trình Asia's Next Top Model mùa thứ 5.",
+    "ground_truth": "Minh Tú đã vượt qua sự sợ hãi để hoàn thành tốt phần thử thách đi catwalk khi bị treo lơ lửng trên một tòa nhà cao tầng và đạt vị trí thứ 2 trong đêm chung kết của chương trình.",
+    "contexts": []
+  },
+  {
+    "question": "Tại sao sương mù xuất hiện dày đặc ở TP HCM vào sáng 21/9?",
+    "answer": "Sương mù là một dạng của khí quyển ẩm, được hình thành khi không khí ấm và ẩm ướt gặp lạnh đột ngột. Vào sáng ngày 21/9, tại TP HCM, sương mù xuất hiện dày đặc do có các yếu tố sau:\n\nThứ nhất, vào ban đêm, nhiệt độ trên mặt đất đã giảm xuống thấp, tạo điều kiện cho hơi nước trong không khí凝結 thành sương mù.\n\nThứ hai, vào sáng sớm, không khí vẫn còn ẩm ướt và lạnh, khiến sương mù tiếp tục phát triển và dày đặc hơn.\n\nCuối cùng, gió nhẹ cũng có thể góp phần làm sương mù lan rộng và dày đặc hơn, tạo nên cảnh tượng sương mù dày đặc trên toàn thành phố.\n\nTóm lại, sự xuất hiện của sương mù dày đặc ở TP HCM vào sáng 21/9 là do kết hợp của các yếu tố khí hậu, nhiệt độ và gió.",
+    "ground_truth": "Sương mù xuất hiện dày đặc ở TP HCM vì mấy ngày trước mưa lớn khiến độ cao ẩm, khi đêm về nhiệt độ hạ xuống cộng với hơi nước có sẵn trong không khí đã ngưng tụ thành hạt sương. Đồng thời, do những khối không khí từ nơi khác đem thêm hơi ẩm tới tạo thành sương mù hỗn hợp. Mức ô nhiễm của TP HCM quá cao cũng là một yếu tố gây ra sương mù này.",
+    "contexts": []
+  },
+  {
+    "question": "Vụ nổ tại nhà máy hóa dầu Lâm Nghi Kim Dự ở đâu xảy ra và ảnh hưởng đến bao nhiêu người?",
+    "answer": "Vụ nổ tại nhà máy hóa dầu Lâm Nghi Kim Dự xảy ra tại tỉnh Sơn Đông, Trung Quốc. Theo báo cáo, vụ nổ đã gây thiệt hại nghiêm trọng và làm chết ít nhất 78 người, hơn 640 người bị thương, và nhiều người khác bị ảnh hưởng bởi sự cố này.",
+    "ground_truth": "Vụ nổ tại nhà máy hóa dầu Lâm Nghi Kim Dự đã xảy ra tại Khu phát triển Kinh tế Lâm Nghi Lâm Cảng, tỉnh Sơn Đông, Trung Quốc vào lúc 2h sáng (giờ Hà Nội) ngày 5/6. Hiện có 1 người chết, 6 người bị thương và 7 người mất tích.",
+    "contexts": []
+  },
+  {
+    "question": "Tây Ban Nha đã cáo buộc ai về việc thúc giục Catalonia đòi độc lập?",
+    "answer": "Tây Ban Nha đã cáo buộc người đứng đầu chính phủ Catalonia, Carles Puigdemont, và các quan chức khác trong chính quyền Catalonia về việc thúc giục Catalonia đòi độc lập.",
+    "ground_truth": "Tây Ban Nha đã cáo buộc một số tổ chức ở Nga và Venezuela đã sử dụng mạng xã hội để thúc giục tiến hành cuộc trưng cầu dân ý đòi độc lập ở Catalonia.",
+    "contexts": []
+  },
+  {
+    "question": "Lý Hải có bao giờ hết thời trong sự nghiệp ca hát không?",
+    "answer": "Lý Hải là một nghệ sĩ âm nhạc người Việt Nam, đã có nhiều năm kinh nghiệm và đạt được nhiều thành công trong sự nghiệp của mình. Tuy nhiên, về mặt cảm xúc và thể chất, Lý Hải cũng phải đối mặt với những thách thức và khó khăn trong quá trình phát triển sự nghiệp.\n\nTheo như Lý Hải chia sẻ, anh từng trải qua giai đoạn khó khăn nhất là vào năm 2015, khi anh bị chấn thương tai và phải ngừng hoạt động ca hát trong một thời gian dài. Tuy nhiên, sau khi hồi phục, Lý Hải đã quay trở lại với âm nhạc và tiếp tục phát triển sự nghiệp của mình.\n\nVì vậy, có thể nói rằng Lý Hải không bao giờ hết thời trong sự nghiệp ca hát, nhưng anh cũng phải đối mặt với những thách thức và khó khăn trong quá trình phát triển sự nghiệp.",
+    "ground_truth": "Vâng, Lý Hải đã hết thời trong sự nghiệp ca hát do ảnh hưởng của xu hướng Làn Sóng Xanh. Tuy nhiên, anh quay lại sự nghiệp bằng cách chế tạo một video ca nhạc kết hợp hài kịch có tên là 'Trọn đời bên em', giúp anh có thể chạy show trở lại và trả nợ.",
+    "contexts": []
+  },
+  {
+    "question": "Số lượng tay súng Châu Phi có thể trở lại quê hương từ Syria và Iraq là bao nhiêu và tại sao đòi hỏi các nước Châu Phi cần chuẩn bị trước mối đe dọa an ninh?",
+    "answer": "Theo ước tính của Liên Hợp Quốc, khoảng 5.000 - 6.000 tay súng Châu Phi đã tham gia vào cuộc chiến tranh ở Syria và Iraq. Trong số này, có thể có đến 2.000 - 3.000 người trở lại quê hương.\n\nTay súng Châu Phi tham gia vào cuộc chiến tranh ở Trung Đông chủ yếu là do các lý do sau:\n\n* Tình trạng nghèo khó và bất ổn tại quê hương của họ, khiến họ tìm kiếm cơ hội kiếm tiền và cải thiện đời sống.\n* Ảnh hưởng của cực đoan và khủng bố, khiến họ tin rằng tham gia vào cuộc chiến tranh là cách duy nhất để bảo vệ tôn giáo và văn hóa của mình.\n* Cảm giác bị phân biệt đối xử và không được công nhận tại quê hương, khiến họ tìm kiếm sự công nhận và quyền lợi tại các nước khác.\n\nDo đó, các nước Châu Phi cần chuẩn bị trước mối đe dọa an ninh bởi vì:\n\n* Sức khỏe và an toàn của người dân có thể bị ảnh hưởng bởi những tay súng trở lại quê hương.\n* Mối đe dọa an ninh quốc gia có thể tăng lên do sự hiện diện của những tay súng có kinh nghiệm chiến tranh.\n* Cần phải phát triển các chương trình giáo dục, hòa giải và tái hòa nhập để giúp người dân quay trở lại quê hương và tái hòa nhập vào xã hội.\n\nVì vậy, các nước Châu Phi cần phải chuẩn bị trước mối đe dọa an ninh bằng cách:\n\n* Phát triển các chương trình giáo dục và hòa giải để giúp người dân quay trở lại quê hương.\n* Tăng cường công tác an ninh quốc gia và phát triển các chương trình tái hòa nhập cho những tay súng trở lại quê hương.\n* Đảm bảo rằng các chương trình tái hòa nhập được thực hiện trong một môi trường an toàn và công bằng.",
+    "ground_truth": "Có khoảng 6.000 tay súng Châu Phi có thể trở lại quê hương từ Syria và Iraq, vì họ đã chiến đấu cho Tổ chức Nhà nước Hồi giáo tự xưng (IS) tại khu vực này. Việc này sẽ mang đến một mối đe dọa nghiêm trọng đến an ninh quốc gia và sự ổn định của khu vực, đòi hỏi các nước Châu Phi cần có những biện pháp đặc biệt và tăng cường hợp tác tình báo.",
+    "contexts": []
+  },
+  {
+    "question": "Minh Tú đã vượt qua những gì trên hành trình giành ngôi Á quân của Asia’s Next Top Model?",
+    "answer": "Minh Tú đã vượt qua được nhiều thách thức và thử thách trên hành trình giành ngôi Á quân của Asia's Next Top Model, bao gồm:\n\n* Đánh giá về ngoại hình, phong cách và thần thái\n* Trình diễn các outfit khác nhau trong các buổi chụp hình\n* Thực hiện các thử thách về thể chất và trí tuệ\n* Đấu tranh với các thí sinh khác để giành vị trí cao nhất\n\nQua những thử thách này, Minh Tú đã chứng tỏ mình là một thí sinh có tiềm năng và khả năng phát triển, cuối cùng trở thành Á quân của cuộc thi.",
+    "ground_truth": "Minh Tú đã trải qua một hành trình khó khăn để giành ngôi Á quân của Asia’s Next Top Model. Cô đã bắt đầu mùa giải thứ 5 với một ảnh được chấm điểm thấp và đứng vị trí thứ 9 ở vòng ngoài. Cô sau đó đã vươn lên vị trí thứ 2 và có một ảnh được xếp hạng cao nhất tuần. Tuy nhiên, cô sau đó lại giảm đột ngột phong độ và rơi vào Top 3 nguy hiểm. Cô sau đó đã lấy lại phong độ và vươn lên vị trí thứ 2. Cô sau đó đã lại lọt vào top nguy hiểm với một ảnh được cho là 'một màu'. Tuy nhiên, cô đã bứt phá lên vị trí thứ 2 và giành chiếc vé vào Chung kết của Asia’s Next Top Model 5. Trong phần Chung kết, cô đã thực hiện một bức ảnh ấn tượng và giành được ngôi Á quân của Asia’s Next Top Model.",
+    "contexts": []
+  },
+  {
+    "question": "Trong Paris Air Show năm 2017, những chiếc máy bay nào đã có màn trình diễn bay ấn tượng?",
+    "answer": "Tại Paris Air Show năm 2017, có nhiều chiếc máy bay đã có màn trình diễn bay ấn tượng. Một số ví dụ bao gồm:\n\n* Airbus A380: Máy bayumbo của Airbus đã thể hiện một màn trình diễn bay ấn tượng với những động tác bay phức tạp và tốc độ cao.\n* Boeing F/A-18 Hornet: Máy bay chiến đấu của Hoa Kỳ đã thể hiện một màn trình diễn bay súng phun lửa và các động tác bay khác nhau.\n* Eurofighter Typhoon: Máy bay chiến đấu của châu Âu đã thể hiện một màn trình diễn bay ấn tượng với những động tác bay phức tạp và tốc độ cao.\n* Dassault Rafale: Máy bay chiến đấu của Pháp đã thể hiện một màn trình diễn bay ấn tượng với những động tác bay phức tạp và tốc độ cao.\n* Airbus A400M Atlas: Máy bay vận tải quân sự của Airbus đã thể hiện một màn trình diễn bay ấn tượng với những động tác bay phức tạp và tốc độ cao.\n\nNhững chiếc máy bay này cùng với nhiều chiếc khác đã tạo nên một chương trình trình diễn bay ấn tượng tại Paris Air Show năm 2017.",
+    "ground_truth": "Tiêm kích Rafale của Pháp, tiêm kích tàng hình F-35A Lightning II của Mỹ và vận tải cơ khổng lồ A400M của Airbus Quốc phòng và Không gian đã có màn trình diễn bay ấn tượng tại Paris Air Show năm 2017.",
+    "contexts": []
+  },
+  {
+    "question": "Trong SEA Games năm nay, về mặt chất lượng chuyên môn, U22 Việt Nam có được đánh giá cao hơn U22 Thái Lan hay không?",
+    "answer": "Theo đánh giá của các chuyên gia và người hâm mộ bóng đá, trong SEA Games năm nay, U22 Việt Nam có thể được đánh giá cao hơn U22 Thái Lan về mặt chất lượng chuyên môn. Lý do là vì U22 Việt Nam đã có những bước tiến đáng kể trong thời gian gần đây, với đội hình trẻ và đầy tiềm năng.\n\nU22 Việt Nam đã có những kết quả ấn tượng tại các giải đấu quốc tế, như Vòng loại U23 châu Á 2023 và Giải vô địch bóng đá U20 châu Á 2022. Họ cũng đã thể hiện được sức mạnh của mình trong các trận đấu với các đối thủ mạnh khác, như Nhật Bản và Úc.\n\nTrong khi đó, U22 Thái Lan tuy có đội hình giàu kinh nghiệm và đã giành nhiều danh hiệu tại SEA Games, nhưng lại đang gặp khó khăn về mặt chất lượng chuyên môn. Họ đã không thể duy trì được phong độ cao trong thời gian gần đây, và đã gặp nhiều khó khăn trong các trận đấu với các đối thủ mạnh.\n\nVì vậy, có thể nói rằng U22 Việt Nam có thể được đánh giá cao hơn U22 Thái Lan về mặt chất lượng chuyên môn tại SEA Games năm nay. Tuy nhiên, vẫn cần phải xem xét kỹ lưỡng về mặt đội hình và chiến thuật của hai đội để có thể đưa ra kết luận chính xác nhất.",
+    "ground_truth": "Có, có thể khẳng định U22 Việt Nam vẫn được đánh giá cao hơn U22 Thái Lan về mặt chất lượng chuyên môn.",
+    "contexts": []
+  }
+]

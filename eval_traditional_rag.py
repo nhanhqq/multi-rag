@@ -13,7 +13,7 @@ from nltk.tokenize import sent_tokenize
 from llm_ollama import LLM
 from ragas import evaluate
 from ragas.metrics import faithfulness, answer_relevancy, context_precision
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -37,7 +37,7 @@ class SimpleRetriever:
             self._build_index(folder_path)
 
     def _build_index(self, folder_path):
-        files = [f for f in os.listdir(folder_path) if f.endswith(('.txt', '.pdf'))]
+        files = [f for f in os.listdir(folder_path) if f.endswith(('.txt', '.pdf', '.md', '.csv'))]
         all_chunks = []
         for file in tqdm(files, desc="Reading files"):
             path = os.path.join(folder_path, file)
@@ -193,5 +193,4 @@ def run_traditional_rag_evaluation(num_samples=None, max_workers=4):
     print(f"Final metrics saved to {output_csv}")
 
 if __name__ == "__main__":
-    # max_workers can be adjusted. 1 for strict sequential, 4 for parallel
-    run_traditional_rag_evaluation(num_samples=None, max_workers=1)
+    run_traditional_rag_evaluation(num_samples=None, max_workers=4)

@@ -1,8 +1,8 @@
 import argparse
 import sys
-from pdf_parser import parse_pdf_to_text
-from retriever import Retriever
-from llm_ollama import OllamaLLM
+from core.pdf_parser import parse_pdf_to_text
+from core.retriever import Retriever
+from core.llm_ollama import OllamaLLM
 
 def main():
     parser = argparse.ArgumentParser()

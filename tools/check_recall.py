@@ -2,7 +2,7 @@ import json
 import os
 
 def check_retrieval_recall():
-    from RAG import Retriever
+    from core.RAG import Retriever
     rag = Retriever()
     if not rag.load():
         print("Could not load RAG index")

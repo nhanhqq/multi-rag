@@ -3,13 +3,13 @@ import json
 import pandas as pd
 from datasets import load_dataset
 from tqdm import tqdm
-from RAG import Retriever
-from llm_ollama import LLM
+from core.RAG import Retriever
+from core.llm_ollama import LLM
 from ragas import evaluate
 from ragas.metrics import faithfulness, answer_relevancy, context_precision
 from langchain_community.chat_models import ChatOllama
 from langchain_community.embeddings import SentenceTransformerEmbeddings
-from agents import RagAgent, Agent1, Agent2, FusionAgent
+from core.agents import RagAgent, Agent1, Agent2, FusionAgent
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import setproctitle
 

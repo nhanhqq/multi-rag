@@ -33,3 +33,6 @@ data/
 eval_results_sailor.csv
 dataset_sample.txt
 context_type.txt
+
+# Centralized results and logs
+results/

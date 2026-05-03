@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from datasets import load_dataset
 from tqdm import tqdm
-from llm_ollama import LLM
+from core.llm_ollama import LLM
 from ragas import evaluate
 from ragas.metrics import answer_relevancy
 from langchain_community.chat_models import ChatOllama

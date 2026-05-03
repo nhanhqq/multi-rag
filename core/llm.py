@@ -1,4 +1,4 @@
-from llm_ollama import OllamaLLM
+from .llm_ollama import OllamaLLM
 
 class LLM:
     def __init__(self, key=None):

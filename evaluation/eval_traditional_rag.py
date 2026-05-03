@@ -10,7 +10,7 @@ from sentence_transformers import SentenceTransformer
 from datasets import load_dataset
 from tqdm import tqdm
 from nltk.tokenize import sent_tokenize
-from llm_ollama import LLM
+from core.llm_ollama import LLM
 from ragas import evaluate
 from ragas.metrics import faithfulness, answer_relevancy, context_precision
 from langchain_ollama import ChatOllama

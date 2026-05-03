@@ -2,7 +2,7 @@ import os
 import faiss
 import numpy as np
 import pickle
-from llm_ollama import OllamaLLM
+from .llm_ollama import OllamaLLM
 
 class Retriever:
     def __init__(self, index_path="data.index", chunks_path="data.pkl"):

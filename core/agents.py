@@ -1,11 +1,11 @@
 import os
-from llm_ollama import LLM
+from .llm_ollama import LLM
 
 def read_prompt(filename):
     path = os.path.join("system_promt", filename)
     if not os.path.exists(path):
         # Fallback if in different folder structure
-        path = os.path.join(os.path.dirname(__file__), "system_promt", filename)
+        path = os.path.join(os.path.dirname(__file__), "..", "system_promt", filename)
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 

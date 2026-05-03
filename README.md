@@ -1,4 +1,4 @@
-# V-Nexus: A Cost-Efficient Multi-Agent Framework for Zero-Shot Domain-Specific Retrieval-Augmented Generation
+# VZeDo: A Cost-Efficient Multi-Agent Framework for Zero-Shot Domain-Specific Retrieval-Augmented Generation
 
 <p align="center">
   <img src="https://img.shields.io/badge/Model-Sailor-blue?style=for-the-badge" alt="Model Sailor">

@@ -28,21 +28,6 @@
 
 ---
 
-## 🛠 System Architecture
-
-```mermaid
-graph TD
-    A[Query] --> B[Hybrid Retrieval]
-    B --> C[Reranking & MMR]
-    C --> D[Context Compression]
-    D --> E{Multi-Agent Layer}
-    E --> F[Drafting]
-    F --> G[Evaluation]
-    G --> H[Final Fusion]
-```
-
----
-
 ## 📊 Evaluation
 Supports **RAGAS** metrics and automated benchmarking for domain-specific datasets.
 

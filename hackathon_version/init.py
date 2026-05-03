@@ -1,4 +1,4 @@
-from RAG import Retriever
+from core.RAG import Retriever
 
 class DataInitializer:
     def __init__(self, pdf_folder="./pdf"):

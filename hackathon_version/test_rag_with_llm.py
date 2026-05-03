@@ -1,6 +1,6 @@
 import os
 from groq import Groq
-from RAG import Retriever
+from core.RAG import Retriever
 from dotenv import load_dotenv
 
 load_dotenv()

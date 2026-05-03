@@ -9,9 +9,9 @@ import time
 import threading
 import asyncio
 from datetime import datetime
-from agents import RagAgent, Agent1, Agent2, FusionAgent
+from core.agents import RagAgent, Agent1, Agent2, FusionAgent
 from loader import load_domain_data
-from RAG import Retriever
+from core.RAG import Retriever
 
 app = FastAPI()
 

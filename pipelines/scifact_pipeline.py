@@ -7,8 +7,8 @@ from tqdm import tqdm
 from fpdf import FPDF
 from pathlib import Path
 
-from RAG import Retriever
-from agents import RagAgent, Agent1, Agent2, FusionAgent
+from core.RAG import Retriever
+from core.agents import RagAgent, Agent1, Agent2, FusionAgent
 
 def create_pdf(doc_id, title, abstract, out_dir):
     pdf = FPDF()
